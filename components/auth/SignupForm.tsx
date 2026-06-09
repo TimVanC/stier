@@ -8,7 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function SignupForm() {
+export function SignupForm({
+  embedded = false,
+  onSuccess,
+}: {
+  embedded?: boolean;
+  onSuccess?: () => void;
+}) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -21,8 +27,15 @@ export function SignupForm() {
     const password = String(form.get("password") ?? "");
 
     startTransition(async () => {
-      const result = await signUp({ email, username, password });
-      if (result?.error) setError(result.error);
+      const result = await signUp(
+        { email, username, password },
+        { redirect: embedded ? false : undefined },
+      );
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      onSuccess?.();
     });
   }
 
@@ -79,17 +92,19 @@ export function SignupForm() {
         {isPending ? "Creating account…" : "Sign up"}
       </Button>
 
-      <p className="text-center text-xs leading-relaxed text-muted-foreground">
-        By signing up you agree to our{" "}
-        <Link href="/terms" className="underline underline-offset-2 hover:text-foreground">
-          Terms
-        </Link>{" "}
-        and{" "}
-        <Link href="/privacy" className="underline underline-offset-2 hover:text-foreground">
-          Privacy Policy
-        </Link>
-        .
-      </p>
+      {!embedded ? (
+        <p className="text-center text-xs leading-relaxed text-muted-foreground">
+          By signing up you agree to our{" "}
+          <Link href="/terms" className="underline underline-offset-2 hover:text-foreground">
+            Terms
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy" className="underline underline-offset-2 hover:text-foreground">
+            Privacy Policy
+          </Link>
+          .
+        </p>
+      ) : null}
     </form>
   );
 }

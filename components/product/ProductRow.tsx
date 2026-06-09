@@ -12,13 +12,16 @@ import { TierBadge } from "@/components/product/TierBadge";
 import { VoteButtons } from "@/components/product/VoteButtons";
 import { cn, formatCount } from "@/lib/utils";
 import type { RankedProduct } from "@/types";
+import type { UserVote } from "@/lib/db/votes";
 
 /** Horizontal ranked-list row used on the category page. */
 export function ProductRow({
   product,
+  userVote = null,
   elevated = false,
 }: {
   product: RankedProduct;
+  userVote?: UserVote;
   elevated?: boolean;
 }) {
   const href = `/categories/${product.categorySlug}/${product.slug}`;
@@ -81,7 +84,11 @@ export function ProductRow({
       </div>
 
       <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-end sm:justify-center">
-        <VoteButtons netVotes={product.netVotes} />
+        <VoteButtons
+          productId={product.id}
+          initialNetVotes={product.netVotes}
+          initialUserVote={userVote}
+        />
         <div className="flex items-center gap-2">
           <button
             type="button"

@@ -12,11 +12,14 @@ type AuthResult = { error: string } | void;
  * again by a DB CHECK + case-insensitive unique index) before being stored in
  * user metadata, where the `handle_new_user` trigger copies it to profiles.
  */
-export async function signUp(input: {
-  email: string;
-  password: string;
-  username: string;
-}): Promise<AuthResult> {
+export async function signUp(
+  input: {
+    email: string;
+    password: string;
+    username: string;
+  },
+  options?: { redirect?: boolean },
+): Promise<AuthResult> {
   const check = validateUsername(input.username);
   if (!check.ok) return { error: check.error };
   const username = check.value;
@@ -40,7 +43,7 @@ export async function signUp(input: {
   });
 
   if (error) return { error: error.message };
-  redirect("/");
+  if (options?.redirect !== false) redirect("/");
 }
 
 /** Sign in with email/password. */

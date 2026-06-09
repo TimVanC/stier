@@ -1,19 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  Bookmark,
-  ChevronRight,
-  ExternalLink,
-  MessageSquare,
-} from "lucide-react";
+import { ChevronRight, MessageSquare } from "lucide-react";
 
+import { AuthGateProvider } from "@/components/auth/AuthGateProvider";
 import { ImagePlaceholder } from "@/components/shared/ImagePlaceholder";
 import { ProductCard } from "@/components/product/ProductCard";
+import { ProductDetailStatsBar, ProductDetailVoteActions } from "@/components/product/ProductDetailVoteUI";
+import { ProductVoteProvider } from "@/components/product/ProductVoteProvider";
 import { ReviewsSection } from "@/components/review/ReviewsSection";
 import { Stars } from "@/components/review/Stars";
 import { TierBadge } from "@/components/product/TierBadge";
-import { VoteButtons } from "@/components/product/VoteButtons";
+import { mergeVoteSnapshot } from "@/lib/db/merge-votes";
+import { dbProductId, getVoteSnapshot } from "@/lib/db/votes";
 import {
   getAverageRating,
   getCategories,
@@ -24,6 +23,8 @@ import {
   getReviewsForProduct,
 } from "@/lib/seed-data";
 import { formatCount } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return getCategories().flatMap((c) =>
@@ -47,13 +48,18 @@ export function generateMetadata({
   };
 }
 
-export default function ProductDetailPage({
+export default async function ProductDetailPage({
   params,
 }: {
   params: { slug: string; "product-slug": string };
 }) {
-  const product = getProductBySlug(params.slug, params["product-slug"]);
-  if (!product) notFound();
+  const seedProduct = getProductBySlug(params.slug, params["product-slug"]);
+  if (!seedProduct) notFound();
+
+  const productId = dbProductId(params.slug, params["product-slug"]);
+  const snapshot = await getVoteSnapshot([productId]);
+  const [product] = mergeVoteSnapshot([seedProduct], params.slug, snapshot);
+  const userVote = snapshot.userVotes[productId] ?? null;
 
   const reviews = getReviewsForProduct(product);
   const related = getRelatedProducts(product.categorySlug, product.slug);
@@ -62,7 +68,9 @@ export default function ProductDetailPage({
   const totalRatings = Object.values(breakdown).reduce((s, n) => s + n, 0);
 
   return (
-    <div className="container py-8 pb-28 md:py-12 lg:pb-12">
+    <AuthGateProvider isAuthenticated={snapshot.isAuthenticated}>
+      <ProductVoteProvider initialNetVotes={product.netVotes}>
+      <div className="container py-8 pb-28 md:py-12 lg:pb-12">
       {/* Breadcrumb */}
       <nav className="mb-5 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
         <Link href="/" className="transition hover:text-foreground">
@@ -116,38 +124,21 @@ export default function ProductDetailPage({
             {product.description}
           </p>
 
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <VoteButtons netVotes={product.netVotes} />
-            <button
-              type="button"
-              className="inline-flex h-11 items-center gap-2 rounded-lg border border-border bg-card px-4 text-sm font-semibold transition hover:bg-secondary"
-            >
-              <Bookmark className="size-4" />
-              Save to list
-            </button>
-            <a
-              href={product.affiliateUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex h-11 items-center gap-2 rounded-full bg-coral px-6 text-sm font-bold text-white transition hover:bg-coral-hover"
-            >
-              Buy {product.price}
-              <ExternalLink className="size-4" />
-            </a>
-          </div>
+          <ProductDetailVoteActions
+            productId={product.id}
+            initialNetVotes={product.netVotes}
+            initialUserVote={userVote}
+            price={product.price}
+            affiliateUrl={product.affiliateUrl}
+          />
         </div>
       </div>
 
-      {/* Stats bar */}
-      <div className="mt-8 grid grid-cols-2 gap-3 rounded-xl border border-border bg-card p-5 sm:grid-cols-4">
-        <Stat label="Net votes" value={formatCount(product.netVotes)} />
-        <Stat label="Reviews" value={formatCount(product.reviewCount)} />
-        <Stat label="Avg rating" value={`${avg} / 5`} />
-        <Stat
-          label="Rank change"
-          value={`${product.rankChange >= 0 ? "+" : ""}${product.rankChange} this wk`}
-        />
-      </div>
+      <ProductDetailStatsBar
+        reviewCount={product.reviewCount}
+        avgRating={avg}
+        rankChange={product.rankChange}
+      />
 
       {/* Review summary */}
       {totalRatings > 0 ? (
@@ -228,20 +219,10 @@ export default function ProductDetailPage({
           className="flex h-12 items-center justify-center gap-2 rounded-full bg-coral text-sm font-bold text-white"
         >
           Buy {product.price}
-          <ExternalLink className="size-4" />
         </a>
       </div>
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <div className="font-display text-xl font-extrabold tracking-tight">
-        {value}
       </div>
-      <div className="text-xs text-muted-foreground">{label}</div>
-    </div>
+      </ProductVoteProvider>
+    </AuthGateProvider>
   );
 }

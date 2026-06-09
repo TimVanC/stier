@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "db:migrate": "node scripts/run-migration.mjs"
+    "db:migrate": "node scripts/run-migration.mjs",
+    "db:seed": "node scripts/seed-catalog.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.0",

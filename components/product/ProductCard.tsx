@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { ImagePlaceholder } from "@/components/shared/ImagePlaceholder";
-import { VoteButtons } from "@/components/product/VoteButtons";
 import { cn, formatCount } from "@/lib/utils";
 import type { RankedProduct, Tier } from "@/types";
 
@@ -85,7 +84,9 @@ export function ProductCard({ product }: { product: RankedProduct }) {
       </div>
 
       <div className="flex items-center justify-between border-t border-border bg-background px-3.5 py-3">
-        <VoteButtons netVotes={product.netVotes} size="sm" />
+        <span className="font-display text-sm font-bold tabular-nums text-foreground">
+          {formatCount(product.netVotes)} votes
+        </span>
         <span
           className={cn(
             "inline-flex items-center gap-1 font-display text-xs font-bold",

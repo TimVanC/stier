@@ -56,21 +56,30 @@ Migration: `supabase/migrations/20260609214500_security_hardening.sql` (applied 
 
 ### Flagged (recommendations, not blocking)
 - CSP `script-src` includes `'unsafe-inline' 'unsafe-eval'` because Next.js injects inline hydration scripts (and eval in dev) without a nonce pipeline. Tightening would require a nonce/middleware CSP setup.
-- `next.config.mjs` image `remotePatterns` allows any `https` host (`**`). Fine while images are placeholders / private-bucket signed URLs; recommend narrowing to the Supabase host (+ known CDNs) before enabling arbitrary remote product images, to avoid the image optimizer proxying arbitrary URLs.
-- Voting/review/product-submission **server actions exist and are fully protected**, but the seed-data-driven UI is not yet wired to them (products are still local seed rows, not DB uuids). Wiring lands with Phase 3/4.
+- [x] `next.config.mjs` image `remotePatterns` narrowed to Supabase storage host (`ytczqoyrtblbqihvrdp.supabase.co/storage/v1/object/**`) only
+
+---
+
+## Phase 3 — Voting (Jun 9)
+- [x] **DB catalog seed** — `scripts/seed-catalog.mjs` + `scripts/catalog-seed-data.json`; 8 categories + 35 products with deterministic UUIDs (`lib/db/uuid.ts`) matching seed slugs; `npm run db:seed`
+- [x] **Realtime** — `votes` table added to `supabase_realtime` publication (`20260610190000_votes_realtime.sql`)
+- [x] **VoteButtons → Supabase** — `castVote` / `removeVote` server actions; optimistic UI; active up/down state; click same button removes vote; rate-limited server-side
+- [x] **Sign-up modal** — anonymous vote clicks open `SignUpModal` (no hard redirect); `AuthGateProvider` on ranked + product pages
+- [x] **Live tallies** — server `getVoteSnapshot()` on page load; Supabase Realtime subscription per product refreshes net vote count; product detail stats bar stays in sync via `ProductVoteProvider`
+- [x] Wired on **ranked category page** (`ProductRow` / `RankedList`) and **product detail page** (`ProductDetailVoteActions` + stats bar)
+- [x] Homepage `ProductCard` shows static vote count only (card is a link — voting happens on detail/list pages)
 
 ---
 
 ## In Progress
-- [ ] Phase 3 — Voting (wire VoteButtons to the secured `castVote` action + sign-up modal)
+- [ ] Phase 4 — Reviews (submit form + Supabase wiring)
 
 ---
 
 ## Up Next
-1. Wire voting to Supabase (one vote per user) + real-time score updates
-2. Replace seed-data reads with Supabase queries + DB seed script
-3. Review submission form (Phase 4)
-4. Set up Vercel deployment
+1. Review submission form (Phase 4)
+2. Replace remaining seed-data reads with Supabase queries
+3. Set up Vercel deployment
 
 ---
 
@@ -98,13 +107,12 @@ Migration: `supabase/migrations/20260609214500_security_hardening.sql` (applied 
 - [x] Seed data (categories and products) — placeholder, ranking-aware
 
 ### Phase 3 — Voting
-- [ ] Vote buttons component
-- [ ] useVote hook
-- [ ] Authenticated voting with sign up modal
-- [ ] One vote per user constraint
-- [ ] Ranking score calculation
-- [ ] Top and Rising sort
-- [ ] Real time vote updates
+- [x] Vote buttons component (Supabase-backed)
+- [x] Authenticated voting with sign up modal
+- [x] One vote per user constraint (DB unique + upsert)
+- [x] Ranking score calculation (existing `lib/ranking.ts`; tiers still from seed until full DB ranking)
+- [x] Top and Rising sort (client-side on seed ranks; vote counts live from DB)
+- [x] Real time vote updates (Supabase Realtime on `votes`)
 
 ### Phase 4 — Reviews
 - [ ] Review form component

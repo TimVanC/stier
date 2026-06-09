@@ -3,14 +3,22 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 
+import { AuthGateProvider } from "@/components/auth/AuthGateProvider";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { RankedList } from "@/components/product/RankedList";
+import {
+  mergeVoteSnapshot,
+  userVotesForProducts,
+} from "@/lib/db/merge-votes";
+import { dbProductId, getVoteSnapshot } from "@/lib/db/votes";
 import {
   getCategories,
   getCategoryBySlug,
   getRankedProducts,
 } from "@/lib/seed-data";
 import { formatCount } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return getCategories().map((c) => ({ slug: c.slug }));
@@ -29,7 +37,7 @@ export function generateMetadata({
   };
 }
 
-export default function RankedCategoryPage({
+export default async function RankedCategoryPage({
   params,
 }: {
   params: { slug: string };
@@ -37,13 +45,21 @@ export default function RankedCategoryPage({
   const category = getCategoryBySlug(params.slug);
   if (!category) notFound();
 
-  const products = getRankedProducts(category.slug);
+  const seedProducts = getRankedProducts(category.slug);
+  const productIds = seedProducts.map((p) =>
+    dbProductId(category.slug, p.slug),
+  );
+  const snapshot = await getVoteSnapshot(productIds);
+  const products = mergeVoteSnapshot(seedProducts, category.slug, snapshot);
+  const userVotes = userVotesForProducts(products, snapshot);
+
   const related = getCategories()
     .filter((c) => c.slug !== category.slug)
     .slice(0, 5);
 
   return (
-    <div className="container py-8 md:py-12">
+    <AuthGateProvider isAuthenticated={snapshot.isAuthenticated}>
+      <div className="container py-8 md:py-12">
       {/* Breadcrumb */}
       <nav className="mb-5 flex items-center gap-1.5 text-sm text-muted-foreground">
         <Link href="/" className="transition hover:text-foreground">
@@ -95,7 +111,7 @@ export default function RankedCategoryPage({
               actionHref="/submit"
             />
           ) : (
-            <RankedList products={products} />
+            <RankedList products={products} userVotes={userVotes} />
           )}
 
           {/* Submit banner */}
@@ -175,6 +191,7 @@ export default function RankedCategoryPage({
           </div>
         </aside>
       </div>
-    </div>
+      </div>
+    </AuthGateProvider>
   );
 }

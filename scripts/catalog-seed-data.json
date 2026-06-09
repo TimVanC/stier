@@ -1,0 +1,318 @@
+{
+  "categories": [
+    {
+      "name": "Coffee Beans",
+      "slug": "coffee-beans",
+      "description": "Single-origin, blends, light to dark — ranked by people who grind every morning.",
+      "isFeatured": true
+    },
+    {
+      "name": "Headphones",
+      "slug": "headphones",
+      "description": "Over-ear, open-back, and studio cans worth the money. No marketing fluff.",
+      "isFeatured": true
+    },
+    {
+      "name": "Winter Jackets",
+      "slug": "winter-jackets",
+      "description": "Insulated layers tested in real cold by people who live in it.",
+      "isFeatured": true
+    },
+    {
+      "name": "Running Shoes",
+      "slug": "running-shoes",
+      "description": "Daily trainers to race-day super shoes, ranked by milage.",
+      "isFeatured": false
+    },
+    {
+      "name": "Slippers",
+      "slug": "slippers",
+      "description": "Indoor comfort that lasts more than one winter.",
+      "isFeatured": false
+    },
+    {
+      "name": "Cast Iron Skillets",
+      "slug": "cast-iron-skillets",
+      "description": "Buy-it-for-life cookware, seasoned by decades of opinions.",
+      "isFeatured": false
+    },
+    {
+      "name": "Mechanical Keyboards",
+      "slug": "mechanical-keyboards",
+      "description": "Boards and switches that survive the daily pound.",
+      "isFeatured": false
+    },
+    {
+      "name": "Backpacks",
+      "slug": "backpacks",
+      "description": "Everyday carry and travel packs ranked by what survives.",
+      "isFeatured": false
+    }
+  ],
+  "products": [
+    {
+      "slug": "stumptown-hairbender",
+      "name": "Hairbender",
+      "brand": "Stumptown Coffee",
+      "description": "A complex, syrupy espresso blend with notes of dark cherry and chocolate. The benchmark most other blends get measured against.",
+      "affiliateUrl": "https://example.com/buy/hairbender",
+      "categorySlug": "coffee-beans"
+    },
+    {
+      "slug": "counter-culture-hologram",
+      "name": "Hologram",
+      "brand": "Counter Culture",
+      "description": "Bright, layered, and endlessly drinkable. A rotating blend tuned for clarity in the cup.",
+      "affiliateUrl": "https://example.com/buy/hologram",
+      "categorySlug": "coffee-beans"
+    },
+    {
+      "slug": "intelligentsia-black-cat",
+      "name": "Black Cat Classic Espresso",
+      "brand": "Intelligentsia",
+      "description": "Heavy body, low acidity, caramel sweetness. Pulls a forgiving, consistent shot.",
+      "affiliateUrl": "https://example.com/buy/black-cat",
+      "categorySlug": "coffee-beans"
+    },
+    {
+      "slug": "onyx-monarch",
+      "name": "Monarch",
+      "brand": "Onyx Coffee Lab",
+      "description": "A bold, chocolate-forward blend built for milk drinks and straight shots alike.",
+      "affiliateUrl": "https://example.com/buy/monarch",
+      "categorySlug": "coffee-beans"
+    },
+    {
+      "slug": "peets-major-dickasons",
+      "name": "Major Dickason's Blend",
+      "brand": "Peet's Coffee",
+      "description": "Full-bodied, rich, and dependable dark roast. A grocery-aisle staple that earns its spot.",
+      "affiliateUrl": "https://example.com/buy/major-dickasons",
+      "categorySlug": "coffee-beans"
+    },
+    {
+      "slug": "lifeboost-medium",
+      "name": "Medium Roast",
+      "brand": "Lifeboost",
+      "description": "Smooth, low-acid single origin. Polarizing on price, loved for the stomach-friendly cup.",
+      "affiliateUrl": "https://example.com/buy/lifeboost-medium",
+      "categorySlug": "coffee-beans"
+    },
+    {
+      "slug": "sennheiser-hd-6xx",
+      "name": "HD 6XX",
+      "brand": "Sennheiser × Drop",
+      "description": "The open-back reference for under $250. Natural mids, smooth treble, endlessly comfortable for long sessions.",
+      "affiliateUrl": "https://example.com/buy/hd6xx",
+      "categorySlug": "headphones"
+    },
+    {
+      "slug": "beyerdynamic-dt-770-pro",
+      "name": "DT 770 Pro",
+      "brand": "Beyerdynamic",
+      "description": "Closed-back studio workhorse with deep bass and bombproof build. Great for noisy rooms.",
+      "affiliateUrl": "https://example.com/buy/dt770",
+      "categorySlug": "headphones"
+    },
+    {
+      "slug": "hifiman-edition-xs",
+      "name": "Edition XS",
+      "brand": "HIFIMAN",
+      "description": "Planar magnetic detail and a wide soundstage at a price that undercuts the competition.",
+      "affiliateUrl": "https://example.com/buy/edition-xs",
+      "categorySlug": "headphones"
+    },
+    {
+      "slug": "audio-technica-m50x",
+      "name": "ATH-M50x",
+      "brand": "Audio-Technica",
+      "description": "The ubiquitous closed-back monitor. Punchy, durable, and a safe first 'real' pair.",
+      "affiliateUrl": "https://example.com/buy/m50x",
+      "categorySlug": "headphones"
+    },
+    {
+      "slug": "hifiman-sundara",
+      "name": "Sundara",
+      "brand": "HIFIMAN",
+      "description": "Crisp, neutral planar sound. Needs a little power but rewards you for it.",
+      "affiliateUrl": "https://example.com/buy/sundara",
+      "categorySlug": "headphones"
+    },
+    {
+      "slug": "patagonia-das-light-hoody",
+      "name": "DAS Light Hoody",
+      "brand": "Patagonia",
+      "description": "Lightweight synthetic belay jacket that stays warm when wet. An alpine favorite.",
+      "affiliateUrl": "https://example.com/buy/das-light",
+      "categorySlug": "winter-jackets"
+    },
+    {
+      "slug": "arcteryx-cerium",
+      "name": "Cerium Hoody",
+      "brand": "Arc'teryx",
+      "description": "Premium down warmth at a featherweight. Pricey, but the gold standard for cold-dry days.",
+      "affiliateUrl": "https://example.com/buy/cerium",
+      "categorySlug": "winter-jackets"
+    },
+    {
+      "slug": "patagonia-nano-puff",
+      "name": "Nano Puff",
+      "brand": "Patagonia",
+      "description": "The do-everything synthetic puffy. Compresses small, layers well, lasts years.",
+      "affiliateUrl": "https://example.com/buy/nano-puff",
+      "categorySlug": "winter-jackets"
+    },
+    {
+      "slug": "north-face-mcmurdo",
+      "name": "McMurdo Parka",
+      "brand": "The North Face",
+      "description": "A serious city parka for deep winter. Heavy, warm, and built to shrug off slush.",
+      "affiliateUrl": "https://example.com/buy/mcmurdo",
+      "categorySlug": "winter-jackets"
+    },
+    {
+      "slug": "saucony-endorphin-pro-4",
+      "name": "Endorphin Pro 4",
+      "brand": "Saucony",
+      "description": "Carbon-plated race shoe with a springy, propulsive ride from 5k to the marathon.",
+      "affiliateUrl": "https://example.com/buy/endorphin-pro-4",
+      "categorySlug": "running-shoes"
+    },
+    {
+      "slug": "nike-vaporfly-3",
+      "name": "Vaporfly 3",
+      "brand": "Nike",
+      "description": "The shoe that started the super-shoe era, still one of the most efficient on race day.",
+      "affiliateUrl": "https://example.com/buy/vaporfly-3",
+      "categorySlug": "running-shoes"
+    },
+    {
+      "slug": "brooks-ghost-16",
+      "name": "Ghost 16",
+      "brand": "Brooks",
+      "description": "The dependable daily trainer. Smooth, neutral, and friendly to high-mileage weeks.",
+      "affiliateUrl": "https://example.com/buy/ghost-16",
+      "categorySlug": "running-shoes"
+    },
+    {
+      "slug": "hoka-clifton-9",
+      "name": "Clifton 9",
+      "brand": "HOKA",
+      "description": "Plush, lightweight cushioning for easy days. A crowd favorite for recovery runs.",
+      "affiliateUrl": "https://example.com/buy/clifton-9",
+      "categorySlug": "running-shoes"
+    },
+    {
+      "slug": "glerups-wool-boot",
+      "name": "Wool Boot, Natural",
+      "brand": "Glerups",
+      "description": "Felted wool that breathes and lasts. The rubber sole makes them quick-trip-to-the-mailbox ready.",
+      "affiliateUrl": "https://example.com/buy/glerups",
+      "categorySlug": "slippers"
+    },
+    {
+      "slug": "birkenstock-mayari",
+      "name": "Mayari",
+      "brand": "Birkenstock",
+      "description": "Cork footbed comfort that molds to your foot. Not fuzzy, but unmatched support.",
+      "affiliateUrl": "https://example.com/buy/mayari",
+      "categorySlug": "slippers"
+    },
+    {
+      "slug": "suicoke-original",
+      "name": "Original",
+      "brand": "Suicoke",
+      "description": "Strappy, cushioned house-to-street comfort. A cult favorite that lasts.",
+      "affiliateUrl": "https://example.com/buy/suicoke",
+      "categorySlug": "slippers"
+    },
+    {
+      "slug": "llbean-wicked-good-moccasin",
+      "name": "Wicked Good Moccasin",
+      "brand": "L.L.Bean",
+      "description": "Shearling-lined moccasins that feel like a hug. Warm, cushioned, and a perennial value pick.",
+      "affiliateUrl": "https://example.com/buy/llbean-moccasin",
+      "categorySlug": "slippers"
+    },
+    {
+      "slug": "field-company-no-8",
+      "name": "No. 8 Cast Iron Skillet",
+      "brand": "Field Company",
+      "description": "Lightweight, machine-smooth cast iron with a naturally slick finish out of the box.",
+      "affiliateUrl": "https://example.com/buy/field-no8",
+      "categorySlug": "cast-iron-skillets"
+    },
+    {
+      "slug": "smithey-no-10",
+      "name": "No. 10 Skillet",
+      "brand": "Smithey Ironware",
+      "description": "Hand-finished, polished interior with heirloom looks. The splurge that earns compliments.",
+      "affiliateUrl": "https://example.com/buy/smithey",
+      "categorySlug": "cast-iron-skillets"
+    },
+    {
+      "slug": "keychron-q1-pro",
+      "name": "Q1 Pro",
+      "brand": "Keychron",
+      "description": "Gasket-mounted aluminum board with wireless, hot-swap switches, and a thocky sound out of the box.",
+      "affiliateUrl": "https://example.com/buy/q1-pro",
+      "categorySlug": "mechanical-keyboards"
+    },
+    {
+      "slug": "novelkeys-nk65",
+      "name": "NK65",
+      "brand": "NovelKeys",
+      "description": "A reliable 65% entry into the hobby with a great stock typing feel.",
+      "affiliateUrl": "https://example.com/buy/nk65",
+      "categorySlug": "mechanical-keyboards"
+    },
+    {
+      "slug": "mode-sonnet",
+      "name": "Sonnet",
+      "brand": "Mode Designs",
+      "description": "Premium enthusiast board with a refined sound profile. For people who know what they want.",
+      "affiliateUrl": "https://example.com/buy/sonnet",
+      "categorySlug": "mechanical-keyboards"
+    },
+    {
+      "slug": "keychron-v1",
+      "name": "V1",
+      "brand": "Keychron",
+      "description": "Wired budget sibling of the Q-series. Gasket mount and hot-swap at a fraction of the price.",
+      "affiliateUrl": "https://example.com/buy/keychron-v1",
+      "categorySlug": "mechanical-keyboards"
+    },
+    {
+      "slug": "aer-travel-pack-3",
+      "name": "Travel Pack 3",
+      "brand": "Aer",
+      "description": "Clamshell carry-on backpack with smart organization and bombproof Cordura.",
+      "affiliateUrl": "https://example.com/buy/aer-travel-3",
+      "categorySlug": "backpacks"
+    },
+    {
+      "slug": "fjallraven-kanken",
+      "name": "Kånken",
+      "brand": "Fjällräven",
+      "description": "Iconic, simple daypack. Not the most ergonomic, but durable and endlessly stylish.",
+      "affiliateUrl": "https://example.com/buy/kanken",
+      "categorySlug": "backpacks"
+    },
+    {
+      "slug": "peak-design-everyday-v2",
+      "name": "Everyday Backpack V2",
+      "brand": "Peak Design",
+      "description": "Camera-friendly EDC pack with clever FlexFold dividers and weatherproof build.",
+      "affiliateUrl": "https://example.com/buy/everyday-v2",
+      "categorySlug": "backpacks"
+    },
+    {
+      "slug": "tom-bihn-synapse-25",
+      "name": "Synapse 25",
+      "brand": "Tom Bihn",
+      "description": "Cult-favorite EDC pack with deep pockets and bombproof stitching. Made in Seattle, built to outlast you.",
+      "affiliateUrl": "https://example.com/buy/tom-bihn-synapse",
+      "categorySlug": "backpacks"
+    }
+  ]
+}

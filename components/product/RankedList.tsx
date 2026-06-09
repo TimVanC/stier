@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { ProductRow } from "@/components/product/ProductRow";
 import { cn } from "@/lib/utils";
 import type { RankedProduct } from "@/types";
+import type { UserVote } from "@/lib/db/votes";
 
 type SortKey = "top" | "rising" | "reviewed" | "newest";
 type FilterKey = "all" | "S" | "A" | "B" | "u50" | "u100" | "u200";
@@ -31,7 +32,13 @@ function parsePrice(price: string): number {
   return match ? Number(match[1]) : Number.POSITIVE_INFINITY;
 }
 
-export function RankedList({ products }: { products: RankedProduct[] }) {
+export function RankedList({
+  products,
+  userVotes = {},
+}: {
+  products: RankedProduct[];
+  userVotes?: Record<string, UserVote>;
+}) {
   const [sort, setSort] = useState<SortKey>("top");
   const [filter, setFilter] = useState<FilterKey>("all");
 
@@ -118,6 +125,7 @@ export function RankedList({ products }: { products: RankedProduct[] }) {
             <ProductRow
               key={p.id}
               product={p}
+              userVote={userVotes[p.id] ?? null}
               elevated={sort === "top" && filter === "all" && p.rank === 1}
             />
           ))}
