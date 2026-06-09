@@ -37,8 +37,29 @@
 
 ---
 
+## Security Audit & Hardening (Jun 9)
+Migration: `supabase/migrations/20260609214500_security_hardening.sql` (applied + verified).
+
+- [x] **Admin route protection** — `app/admin/layout.tsx` runs `requireAdmin()` (server) on every request via the `is_admin()` SQL fn; non-admins redirect to `/`. Defense-in-depth: middleware also gates `/admin/*` server-side. No client-side role trust.
+- [x] **Rate limiting** — `record_user_action()` (SECURITY DEFINER, keyed to `auth.uid()`) + `user_action_events` table; `lib/rate-limit.ts`. Votes 50/hr, reviews 5/day, product submissions 10/day. Enforced inside each server action.
+- [x] **Input sanitization** — `lib/sanitize.ts` strips HTML tags + control chars and caps length on all free text (review body/title/pros/cons, product name/brand/description). Applied in the review/product server actions.
+- [x] **Auth middleware** — `middleware.ts` calls `getUser()` (revalidates token with Auth server, not just cookie read) on every matched request; expired/tampered sessions are refreshed or cleared via `@supabase/ssr` cookie handling.
+- [x] **API/server-action protection** — every writing action (`votes`, `reviews`, `products`, image upload) verifies `getUser()` server-side and derives identity from the session. The client never supplies user/profile ids.
+- [x] **Username validation** — app-level regex in `signUp` + `SignupForm` (`[A-Za-z0-9_]{3,20}`); DB CHECK `profiles_username_format` + case-insensitive unique index `profiles_username_lower_key`.
+- [x] **Image upload security** — private `product-images` bucket (signed URLs only); `uploadProductImage` validates MIME allowlist + 5 MB cap server-side; bucket also enforces size/MIME; RLS confines users to their `<uid>/` folder; reads via 60s signed URLs.
+- [x] **Env var audit** — zero `SUPABASE_SERVICE_ROLE_KEY` references in any source file (grep clean); key lives only in gitignored `.env.local`. App uses the anon key + RLS everywhere; service role intentionally unused.
+- [x] **Security headers** — `next.config.mjs`: CSP, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`.
+- [x] **Votes manipulation** — DB `unique(user_id, product_id)` enforced; `castVote` upserts with `user_id` from session only.
+
+### Flagged (recommendations, not blocking)
+- CSP `script-src` includes `'unsafe-inline' 'unsafe-eval'` because Next.js injects inline hydration scripts (and eval in dev) without a nonce pipeline. Tightening would require a nonce/middleware CSP setup.
+- `next.config.mjs` image `remotePatterns` allows any `https` host (`**`). Fine while images are placeholders / private-bucket signed URLs; recommend narrowing to the Supabase host (+ known CDNs) before enabling arbitrary remote product images, to avoid the image optimizer proxying arbitrary URLs.
+- Voting/review/product-submission **server actions exist and are fully protected**, but the seed-data-driven UI is not yet wired to them (products are still local seed rows, not DB uuids). Wiring lands with Phase 3/4.
+
+---
+
 ## In Progress
-- [ ] Phase 3 — Voting (wire VoteButtons to Supabase + sign-up modal)
+- [ ] Phase 3 — Voting (wire VoteButtons to the secured `castVote` action + sign-up modal)
 
 ---
 

@@ -2,9 +2,12 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
- * Refreshes the Supabase auth session on every request so Server Components
- * always see a valid session. Does NOT gate access — anonymous users can view
- * everything per the product rules; route-level auth is enforced in pages.
+ * Runs on every matched request. Two jobs:
+ *  1. Revalidate the Supabase session via getUser() (NOT getSession), which
+ *     verifies the token with the Auth server and refreshes/clears cookies.
+ *     Expired or tampered sessions are caught here, every request.
+ *  2. Gate /admin/* server-side: signed-out users go to /login, non-admins go
+ *     to /. This is defense-in-depth on top of the per-route requireAdmin().
  */
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -32,7 +35,28 @@ export async function middleware(request: NextRequest) {
 
   // IMPORTANT: do not run code between createServerClient and getUser().
   // getUser() revalidates the token and triggers the cookie refresh above.
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const path = request.nextUrl.pathname;
+
+  if (path.startsWith("/admin")) {
+    if (!user) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.searchParams.set("next", path);
+      return NextResponse.redirect(url);
+    }
+
+    const { data: adminCheck, error } = await supabase.rpc("is_admin");
+    if (error || adminCheck !== true) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+  }
 
   return supabaseResponse;
 }

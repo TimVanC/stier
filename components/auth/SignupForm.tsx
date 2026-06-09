@@ -55,7 +55,10 @@ export function SignupForm() {
           autoComplete="username"
           required
           minLength={3}
-          placeholder="how the community sees you"
+          maxLength={20}
+          pattern="[A-Za-z0-9_]{3,20}"
+          title="3–20 characters: letters, numbers, and underscores only"
+          placeholder="letters, numbers, underscores"
         />
       </div>
 

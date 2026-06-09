@@ -3,24 +3,39 @@
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase-server";
+import { validateUsername } from "@/lib/sanitize";
 
 type AuthResult = { error: string } | void;
 
 /**
- * Create a new account (email/password). Username is stored in user metadata
- * so the `handle_new_user` DB trigger can populate the profiles row.
+ * Create a new account (email/password). Username is validated app-side (and
+ * again by a DB CHECK + case-insensitive unique index) before being stored in
+ * user metadata, where the `handle_new_user` trigger copies it to profiles.
  */
 export async function signUp(input: {
   email: string;
   password: string;
   username: string;
 }): Promise<AuthResult> {
+  const check = validateUsername(input.username);
+  if (!check.ok) return { error: check.error };
+  const username = check.value;
+
   const supabase = await createClient();
+
+  // Case-insensitive availability check (DB unique index is the hard backstop).
+  const { data: taken } = await supabase
+    .from("profiles")
+    .select("id")
+    .ilike("username", username)
+    .maybeSingle();
+  if (taken) return { error: "That username is already taken." };
+
   const { error } = await supabase.auth.signUp({
     email: input.email,
     password: input.password,
     options: {
-      data: { username: input.username, display_name: input.username },
+      data: { username, display_name: username },
     },
   });
 
