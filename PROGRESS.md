@@ -40,6 +40,15 @@
 ## Copy (Jun 9)
 - [x] Hero headline → "Stop searching." / "Start finding." (two lines, "finding." in coral `#ff7f81`)
 
+## Homepage & Nav Polish (Jun 9)
+- [x] **Hero stack cards** — rebuilt right-side preview as 3 stacked, rotated cards with depth/shadow/float animation matching `homepage_mockup.html` (`HeroStackCards.tsx`)
+- [x] **Climbing the rankings** — rebuilt cards from reference: oversized rank (coral #1), tier pill top-right, image, brand/name, meta row, vote controls + rank change foot (`ClimbingProductCard.tsx`)
+- [x] **Nav pages** — `/for-you`, `/trending`, `/new` with seed data; week/month toggle on trending
+- [x] **Nav dropdowns** — subcategories → ranked lists (e.g. `/categories/over-ear-headphones`); parent labels → grid pages (e.g. `/categories/audio`) via `lib/nav-catalog.ts`
+- [x] **For-you note** — real personalization deferred to Phase 9 (seed suggestions only for now)
+- [x] **Ranked sidebar** — "On the rise" + "Falling" momentum sections below category stats
+- [x] **Ranked filters** — All pill, tier dropdown (S+–F), price min/max, Reset when active
+
 ## Security Audit & Hardening (Jun 9)
 Migration: `supabase/migrations/20260609214500_security_hardening.sql` (applied + verified).
 
@@ -79,7 +88,8 @@ Migration: `supabase/migrations/20260609214500_security_hardening.sql` (applied 
 ## Up Next
 1. Review submission form (Phase 4)
 2. Replace remaining seed-data reads with Supabase queries
-3. Set up Vercel deployment
+3. Phase 9 — personalized For You feed
+4. Set up Vercel deployment
 
 ---
 
@@ -148,6 +158,7 @@ Migration: `supabase/migrations/20260609214500_security_hardening.sql` (applied 
 - [ ] User management
 
 ### Phase 9 — Polish
+- [ ] **Personalized For You feed** (replace seed suggestions on `/for-you`)
 - [ ] Search results page
 - [ ] Empty states across all pages
 - [ ] Loading states across all pages
