@@ -32,9 +32,9 @@ export function Hero() {
             </div>
 
             <h1 className="font-display text-[clamp(2.5rem,6vw,4.75rem)] font-extrabold leading-[0.96] tracking-tight text-foreground">
-              The reviews are rigged.
+              Stop searching.
               <br />
-              Start with the <span className="text-coral">best.</span>
+              Start <span className="text-coral">finding.</span>
             </h1>
 
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">

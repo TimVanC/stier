@@ -37,6 +37,9 @@
 
 ---
 
+## Copy (Jun 9)
+- [x] Hero headline → "Stop searching." / "Start finding." (two lines, "finding." in coral `#ff7f81`)
+
 ## Security Audit & Hardening (Jun 9)
 Migration: `supabase/migrations/20260609214500_security_hardening.sql` (applied + verified).
 
