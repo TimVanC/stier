@@ -47,10 +47,13 @@ export async function signUp(
 }
 
 /** Sign in with email/password. */
-export async function signIn(input: {
-  email: string;
-  password: string;
-}): Promise<AuthResult> {
+export async function signIn(
+  input: {
+    email: string;
+    password: string;
+  },
+  options?: { redirectTo?: string },
+): Promise<AuthResult> {
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({
     email: input.email,
@@ -58,6 +61,11 @@ export async function signIn(input: {
   });
 
   if (error) return { error: error.message };
+
+  const next = options?.redirectTo;
+  if (next && next.startsWith("/") && !next.startsWith("//")) {
+    redirect(next);
+  }
   redirect("/");
 }
 

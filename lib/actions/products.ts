@@ -34,6 +34,76 @@ export interface ProductInput {
   productUrl?: string;
   /** Optional storage path returned by uploadProductImage(). */
   imagePath?: string;
+  /** Set when the user confirms submitting despite a duplicate warning. */
+  allowDuplicate?: boolean;
+}
+
+function normalizeProductIdentity(name: string, brand: string) {
+  return {
+    name: name.trim().toLowerCase(),
+    brand: brand.trim().toLowerCase(),
+  };
+}
+
+async function findDuplicateProduct(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  categoryId: string,
+  name: string,
+  brand: string,
+) {
+  const target = normalizeProductIdentity(name, brand);
+  const { data: products, error } = await supabase
+    .from("products")
+    .select("id, name, brand, status")
+    .eq("category_id", categoryId);
+
+  if (error) return { error: "Could not check for duplicates." as const };
+
+  const match = (products ?? []).find((p) => {
+    const existing = normalizeProductIdentity(p.name, p.brand ?? "");
+    return existing.name === target.name && existing.brand === target.brand;
+  });
+
+  return { match };
+}
+
+/** Check if a product with the same name + brand already exists in a category. */
+export async function checkProductDuplicate(
+  categoryId: string,
+  name: string,
+  brand?: string,
+): Promise<
+  ActionResult<{ isDuplicate: boolean; existingStatus?: string }>
+> {
+  if (!isUuid(categoryId)) {
+    return { ok: false, error: "Pick a valid category." };
+  }
+
+  const cleanName = sanitizeText(name, 120);
+  const cleanBrand = sanitizeText(brand, 80);
+  if (cleanName.length < 2) {
+    return { ok: false, error: "Product name is too short." };
+  }
+  if (cleanBrand.length < 1) {
+    return { ok: false, error: "Brand is required." };
+  }
+
+  const supabase = await createClient();
+  const { match, error } = await findDuplicateProduct(
+    supabase,
+    categoryId,
+    cleanName,
+    cleanBrand,
+  );
+  if (error) return { ok: false, error };
+
+  return {
+    ok: true,
+    data: {
+      isDuplicate: Boolean(match),
+      existingStatus: match?.status,
+    },
+  };
 }
 
 /**
@@ -66,6 +136,7 @@ export async function submitProduct(
   const name = sanitizeText(input.name, 120);
   if (name.length < 2) return { ok: false, error: "Product name is too short." };
   const brand = sanitizeText(input.brand, 80);
+  if (brand.length < 1) return { ok: false, error: "Brand is required." };
   const description = sanitizeText(input.description, 2000);
 
   let productUrl: string | null = null;
@@ -91,6 +162,27 @@ export async function submitProduct(
     return { ok: false, error: "Could not resolve your profile." };
   }
 
+  const duplicate = await findDuplicateProduct(
+    supabase,
+    input.categoryId,
+    name,
+    brand,
+  );
+  if (duplicate.error) {
+    return { ok: false, error: duplicate.error };
+  }
+  if (duplicate.match && !input.allowDuplicate) {
+    return {
+      ok: false,
+      error: "A product with this name and brand already exists in that category.",
+    };
+  }
+
+  let slug = slugify(name) || `product-${Date.now()}`;
+  if (duplicate.match && input.allowDuplicate) {
+    slug = `${slug}-${crypto.randomUUID().slice(0, 8)}`;
+  }
+
   // Image path (if any) must live in the caller's own folder.
   let imageUrl: string | null = null;
   if (input.imagePath) {
@@ -105,7 +197,7 @@ export async function submitProduct(
     .insert({
       category_id: input.categoryId,
       name,
-      slug: slugify(name) || `product-${Date.now()}`,
+      slug,
       brand: brand || null,
       description: description || null,
       product_url: productUrl,

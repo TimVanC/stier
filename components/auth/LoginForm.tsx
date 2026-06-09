@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { signIn } from "@/lib/auth";
@@ -9,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export function LoginForm() {
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("next") ?? undefined;
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -20,7 +23,10 @@ export function LoginForm() {
     const password = String(form.get("password") ?? "");
 
     startTransition(async () => {
-      const result = await signIn({ email, password });
+      const result = await signIn(
+        { email, password },
+        redirectTo ? { redirectTo } : undefined,
+      );
       if (result?.error) setError(result.error);
     });
   }

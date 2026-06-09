@@ -103,13 +103,22 @@ Migration: `supabase/migrations/20260610193000_review_helpful_rpc.sql` (applied)
 
 ---
 
+## Phase 5 — Submissions (Jun 9)
+- [x] **`/submit` page** — auth required (redirect to `/login?next=/submit`); form submits via `submitProduct` as `pending`
+- [x] **Image upload** — optional file upload to private `product-images` bucket via `uploadProductImage`
+- [x] **Success state** — confirmation + links to `/profile/submissions` and browse categories
+- [x] **Duplicate detection** — `checkProductDuplicate` warns before insert; user can confirm with `allowDuplicate` (unique slug suffix)
+- [x] **`/profile/submissions`** — table of user's submissions with pending / approved / rejected status
+
+---
+
 ## In Progress
-- [ ] Phase 5 — Submissions (submit product page + admin queue)
+- [ ] Phase 6 — User dashboard (lists, upvotes, settings)
 
 ---
 
 ## Up Next
-1. Submit product flow (Phase 5)
+1. User profile + dashboard pages (Phase 6)
 2. Replace remaining seed-data reads with Supabase queries
 3. Phase 9 — personalized For You feed
 4. Set up Vercel deployment
@@ -156,10 +165,12 @@ Migration: `supabase/migrations/20260610193000_review_helpful_rpc.sql` (applied)
 - [x] Sign-up modal gate for anonymous reviewers
 
 ### Phase 5 — Submissions
-- [ ] Submit product page
-- [ ] Pending state storage
-- [ ] Admin submission queue
-- [ ] Approve/reject flow
+- [x] Submit product page (`/submit`) with Supabase insert as pending
+- [x] Image upload to private storage bucket
+- [x] Success confirmation + link to `/profile/submissions`
+- [x] Duplicate name + brand detection with confirm-to-submit
+- [x] Auth redirect for anonymous users
+- [ ] Admin submission queue approve/reject flow
 
 ### Phase 6 — User Dashboard
 - [ ] User profile page (public)
@@ -274,7 +285,11 @@ _Cursor should update this as files are created._
 | components/home/* | Hero, FeaturedCategories, RisingThisWeek |
 | components/category/* | CategoryCard, CategoryBrowser |
 | lib/recompute-rankings.ts | Re-sort category products and assign tiers from live vote tallies |
-| lib/db/reviews.ts | Review bundle fetch, batch counts, merge helper |
+| lib/db/categories.ts, submissions.ts | Category dropdown + user submission reads |
+| lib/actions/products.ts | Submit, upload, duplicate check |
+| components/submit/SubmitProductForm.tsx | Submit form + success state |
+| app/submit/page.tsx | Auth-gated submit page |
+| app/profile/submissions/page.tsx | My submissions list |
 | lib/actions/reviews.ts, review-read.ts | Submit/update/delete/helpful/report + client refresh |
 | components/review/* | ReviewForm, ReviewCard, ProductReviewsBlock, StarRatingInput, Stars |
 | components/shared/* | TierBars, ImagePlaceholder, EmptyState |
@@ -321,6 +336,9 @@ Phase 4 (Reviews) is complete: review form on product detail writes to Supabase,
 reviews/stats load from DB, counts on cards and ranked rows, sort + helpful + report
 actions wired, one-review-per-user enforced, edit/delete for owners.
 
-Phase 5 next: submit product flow + admin queue. The Navbar still needs a mobile
+Phase 5 (Submissions) is complete: `/submit` form writes pending products to Supabase
+with optional image upload, duplicate warning, and `/profile/submissions` tracking.
+
+Phase 6 next: user dashboard pages. The Navbar still needs a mobile
 `/submit`, `/profile/*`, `/forgot-password`, `/terms`, `/privacy` are linked but not built yet.
 Use `npm run dev` to view.
