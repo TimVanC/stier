@@ -28,14 +28,19 @@ export function Navbar() {
         </Link>
 
         {/* Search — the most prominent interactive element per .cursorrules */}
-        <div className="relative hidden max-w-[520px] flex-1 md:block">
-          <Search className="absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-muted-foreground" />
+        <form
+          action="/categories"
+          role="search"
+          className="relative hidden max-w-[520px] flex-1 md:block"
+        >
+          <Search className="pointer-events-none absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-muted-foreground" />
           <input
             type="search"
+            name="q"
             placeholder="Search ranked products…"
             className="h-11 w-full rounded-xl border border-border bg-card pl-11 pr-4 text-sm font-medium text-foreground outline-none transition focus:border-foreground focus:ring-4 focus:ring-foreground/5"
           />
-        </div>
+        </form>
 
         <nav className="ml-auto flex items-center gap-1.5">
           <Button variant="ghost" size="sm" className="hidden sm:inline-flex" asChild>

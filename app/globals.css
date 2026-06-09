@@ -96,4 +96,25 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Diagonal hatch used for placeholder product imagery. */
+  .bg-hatch {
+    background-image: repeating-linear-gradient(
+      135deg,
+      rgba(26, 26, 46, 0.05) 0,
+      rgba(26, 26, 46, 0.05) 8px,
+      transparent 8px,
+      transparent 16px
+    );
+  }
+
+  /* Subtle right-edge fade hint for horizontal scroll rows. */
+  .fade-right {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      black calc(100% - 48px),
+      transparent
+    );
+    mask-image: linear-gradient(to right, black calc(100% - 48px), transparent);
+  }
 }
