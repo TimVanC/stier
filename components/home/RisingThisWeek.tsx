@@ -1,10 +1,12 @@
 import Link from "next/link";
 
 import { ClimbingProductCard } from "@/components/home/ClimbingProductCard";
-import { getRisingProducts } from "@/lib/seed-data";
+import { getRisingProductsFromDb } from "@/lib/db/catalog";
 
-export function RisingThisWeek() {
-  const rising = getRisingProducts(7);
+export async function RisingThisWeek() {
+  const rising = await getRisingProductsFromDb(7);
+
+  if (rising.length === 0) return null;
 
   return (
     <section className="py-12 md:py-16">
