@@ -1,6 +1,6 @@
 # Stier — Build Progress
 
-## Status: Phase 2 — Core Browsing (complete) · Auth (complete)
+## Status: Phase 6 — User Dashboard (complete) · Phase 5 Submissions (complete)
 
 ---
 
@@ -112,16 +112,30 @@ Migration: `supabase/migrations/20260610193000_review_helpful_rpc.sql` (applied)
 
 ---
 
+## Phase 6 — User Dashboard (Jun 9)
+Migration: `supabase/migrations/20260610200000_avatars_bucket.sql` (applied).
+
+- [x] **`/profile/[username]`** — public profile from Supabase; real review, submission, and vote counts; private profile gate; public reviews, lists, and approved submissions
+- [x] **`/profile/lists`** — create, rename, delete `saved_lists`; add/remove products via `saved_list_items`; public/private visibility toggle
+- [x] **`/profile/upvotes`** — all upvoted products from `votes` table; remove upvote action
+- [x] **`/profile/submissions`** — user submissions with pending/approved/rejected badges; rejection reason when provided
+- [x] **`/profile/reviews`** — all user reviews with edit (ReviewForm) and delete
+- [x] **`/profile/settings`** — display name, username, avatar upload (public `avatars` bucket), password change, profile visibility toggle, delete account with DELETE confirmation
+- [x] **Dashboard layout** — shared `ProfileDashboardNav` across all `/profile/*` dashboard routes; auth redirect to `/login?next=…`
+
+---
+
 ## In Progress
-- [ ] Phase 6 — User dashboard (lists, upvotes, settings)
+- [ ] Phase 7 — Waitlist
 
 ---
 
 ## Up Next
-1. User profile + dashboard pages (Phase 6)
-2. Replace remaining seed-data reads with Supabase queries
-3. Phase 9 — personalized For You feed
-4. Set up Vercel deployment
+1. Waitlist page + email capture (Phase 7)
+2. Admin submission queue approve/reject flow
+3. Replace remaining seed-data reads with Supabase queries
+4. Phase 9 — personalized For You feed
+5. Set up Vercel deployment
 
 ---
 
@@ -173,12 +187,12 @@ Migration: `supabase/migrations/20260610193000_review_helpful_rpc.sql` (applied)
 - [ ] Admin submission queue approve/reject flow
 
 ### Phase 6 — User Dashboard
-- [ ] User profile page (public)
-- [ ] My Lists
-- [ ] My Upvotes
-- [ ] My Submissions
-- [ ] My Reviews
-- [ ] Settings page
+- [x] User profile page (public)
+- [x] My Lists
+- [x] My Upvotes
+- [x] My Submissions
+- [x] My Reviews
+- [x] Settings page
 
 ### Phase 7 — Waitlist
 - [ ] Waitlist page
@@ -289,7 +303,13 @@ _Cursor should update this as files are created._
 | lib/actions/products.ts | Submit, upload, duplicate check |
 | components/submit/SubmitProductForm.tsx | Submit form + success state |
 | app/submit/page.tsx | Auth-gated submit page |
-| app/profile/submissions/page.tsx | My submissions list |
+| app/profile/(dashboard)/* | Lists, upvotes, submissions, reviews, settings dashboard pages |
+| app/profile/[username]/page.tsx | Public profile with stats, reviews, lists, submissions |
+| components/profile/* | ProfileDashboardNav, ListsManager, UpvotesList, UserReviewsManager, SettingsForm |
+| lib/db/profile.ts, lists.ts, upvotes.ts, user-reviews.ts | Profile, lists, upvotes, and user-review reads |
+| lib/actions/profile.ts, lists.ts | Profile settings, avatar upload, account delete, saved-list CRUD |
+| lib/auth-guard.ts, lib/supabase-admin.ts | Auth redirect helper + service-role client for account deletion |
+| supabase/migrations/20260610200000_avatars_bucket.sql | Public avatars storage bucket with user-scoped RLS |
 | lib/actions/reviews.ts, review-read.ts | Submit/update/delete/helpful/report + client refresh |
 | components/review/* | ReviewForm, ReviewCard, ProductReviewsBlock, StarRatingInput, Stars |
 | components/shared/* | TierBars, ImagePlaceholder, EmptyState |
@@ -339,6 +359,11 @@ actions wired, one-review-per-user enforced, edit/delete for owners.
 Phase 5 (Submissions) is complete: `/submit` form writes pending products to Supabase
 with optional image upload, duplicate warning, and `/profile/submissions` tracking.
 
-Phase 6 next: user dashboard pages. The Navbar still needs a mobile
-`/submit`, `/profile/*`, `/forgot-password`, `/terms`, `/privacy` are linked but not built yet.
+Phase 6 (User Dashboard) is complete: public profile at `/profile/[username]` with
+real stats; dashboard pages for lists, upvotes, submissions, reviews, and settings —
+all wired to Supabase with auth redirects. Avatar uploads use the public `avatars` bucket;
+account deletion requires `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`.
+
+Phase 7 next: waitlist page. The Navbar still needs a mobile menu;
+`/forgot-password`, `/terms`, `/privacy` are linked but not built yet.
 Use `npm run dev` to view.

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
+import { requireAuth } from "@/lib/auth-guard";
 import { getUserSubmissions } from "@/lib/db/submissions";
-import { createClient } from "@/lib/supabase-server";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -22,19 +21,11 @@ const STATUS_STYLES = {
 } as const;
 
 export default async function MySubmissionsPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login?next=/profile/submissions");
-  }
-
+  await requireAuth("/profile/submissions");
   const submissions = await getUserSubmissions();
 
   return (
-    <div className="container py-8 md:py-12">
+    <div>
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-extrabold tracking-tight md:text-4xl">
@@ -92,7 +83,7 @@ export default async function MySubmissionsPage() {
                     ) : null}
                     {s.status === "rejected" && s.rejectionReason ? (
                       <p className="mt-1 text-xs text-red-600/80">
-                        {s.rejectionReason}
+                        Reason: {s.rejectionReason}
                       </p>
                     ) : null}
                   </td>
