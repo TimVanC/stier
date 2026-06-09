@@ -7,6 +7,7 @@ import { AuthGateProvider } from "@/components/auth/AuthGateProvider";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { RankedList } from "@/components/product/RankedList";
 import { ParentCategoryGrid } from "@/components/category/ParentCategoryGrid";
+import { RankMomentumSidebar } from "@/components/category/RankMomentumSidebar";
 import {
   mergeVoteSnapshot,
   userVotesForProducts,
@@ -200,6 +201,8 @@ export default async function RankedCategoryPage({
               </div>
             </dl>
           </div>
+
+          <RankMomentumSidebar products={products} />
 
           <div className="rounded-xl border border-border bg-card p-5">
             <h2 className="font-display text-sm font-bold uppercase tracking-wider text-muted-foreground">
