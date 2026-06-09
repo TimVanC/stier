@@ -3,19 +3,21 @@ import { ArrowRight } from "lucide-react";
 
 import { CategoryCard } from "@/components/category/CategoryCard";
 import { ClimbingProductCard } from "@/components/home/ClimbingProductCard";
-import { getCategoriesWithStats, getRisingProducts } from "@/lib/seed-data";
+import {
+  getPopularCategoriesFromDb,
+  getRisingProductsFromDb,
+} from "@/lib/db/catalog";
 
 export const metadata = {
   title: "Suggested for you",
   description: "Community lists and rising products picked for you.",
 };
 
-export default function ForYouPage() {
-  const popular = getCategoriesWithStats()
-    .slice()
-    .sort((a, b) => b.voteCount - a.voteCount)
-    .slice(0, 6);
-  const rising = getRisingProducts(6);
+export default async function ForYouPage() {
+  const [popular, rising] = await Promise.all([
+    getPopularCategoriesFromDb(6),
+    getRisingProductsFromDb(6),
+  ]);
 
   return (
     <div className="container py-10 md:py-14">
@@ -33,11 +35,17 @@ export default function ForYouPage() {
         <h2 className="mb-4 font-display text-xl font-bold tracking-tight">
           Top lists
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {popular.map((category) => (
-            <CategoryCard key={category.id} category={category} />
-          ))}
-        </div>
+        {popular.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No categories yet. Check back after the community adds lists.
+          </p>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {popular.map((category) => (
+              <CategoryCard key={category.id} category={category} />
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="mt-12">
@@ -53,17 +61,23 @@ export default function ForYouPage() {
             <ArrowRight className="size-4" />
           </Link>
         </div>
-        <div className="fade-right -mx-6 px-6">
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-            {rising.map((product, i) => (
-              <ClimbingProductCard
-                key={product.id}
-                product={product}
-                displayRank={i + 1}
-              />
-            ))}
+        {rising.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No votes this week yet.
+          </p>
+        ) : (
+          <div className="fade-right -mx-6 px-6">
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+              {rising.map((product, i) => (
+                <ClimbingProductCard
+                  key={product.id}
+                  product={product}
+                  displayRank={i + 1}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </section>
     </div>
   );
