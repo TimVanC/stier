@@ -4,11 +4,11 @@ import { useMemo, useState } from "react";
 
 import { ProductRow } from "@/components/product/ProductRow";
 import { cn } from "@/lib/utils";
-import type { RankedProduct } from "@/types";
+import type { RankedProduct, Tier } from "@/types";
 import type { UserVote } from "@/lib/db/votes";
 
 type SortKey = "top" | "rising" | "reviewed" | "newest";
-type FilterKey = "all" | "S" | "A" | "B" | "u50" | "u100" | "u200";
+type TierFilter = "all" | Tier;
 
 const SORTS: { key: SortKey; label: string }[] = [
   { key: "top", label: "Top Ranked" },
@@ -17,14 +17,15 @@ const SORTS: { key: SortKey; label: string }[] = [
   { key: "newest", label: "Newest" },
 ];
 
-const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "S", label: "S Tier" },
-  { key: "A", label: "A Tier" },
-  { key: "B", label: "B Tier" },
-  { key: "u50", label: "Under $50" },
-  { key: "u100", label: "Under $100" },
-  { key: "u200", label: "Under $200" },
+const TIER_OPTIONS: { value: TierFilter; label: string }[] = [
+  { value: "all", label: "All Tiers" },
+  { value: "S+", label: "S+" },
+  { value: "S", label: "S" },
+  { value: "A", label: "A" },
+  { value: "B", label: "B" },
+  { value: "C", label: "C" },
+  { value: "D", label: "D" },
+  { value: "F", label: "F" },
 ];
 
 function parsePrice(price: string): number {
@@ -40,25 +41,25 @@ export function RankedList({
   userVotes?: Record<string, UserVote>;
 }) {
   const [sort, setSort] = useState<SortKey>("top");
-  const [filter, setFilter] = useState<FilterKey>("all");
+  const [tierFilter, setTierFilter] = useState<TierFilter>("all");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
+
+  const hasActiveFilters =
+    tierFilter !== "all" || priceMin !== "" || priceMax !== "";
 
   const visible = useMemo(() => {
+    const min = priceMin ? Number(priceMin) : null;
+    const max = priceMax ? Number(priceMax) : null;
+
     let list = products.filter((p) => {
-      switch (filter) {
-        case "S":
-        case "A":
-        case "B":
-          return p.tier === filter;
-        case "u50":
-          return parsePrice(p.price) < 50;
-        case "u100":
-          return parsePrice(p.price) < 100;
-        case "u200":
-          return parsePrice(p.price) < 200;
-        default:
-          return true;
-      }
+      if (tierFilter !== "all" && p.tier !== tierFilter) return false;
+      const price = parsePrice(p.price);
+      if (min !== null && !Number.isNaN(min) && price < min) return false;
+      if (max !== null && !Number.isNaN(max) && price > max) return false;
+      return true;
     });
+
     list = [...list];
     switch (sort) {
       case "rising":
@@ -74,11 +75,15 @@ export function RankedList({
         list.sort((a, b) => a.rank - b.rank);
     }
     return list;
-  }, [products, sort, filter]);
+  }, [products, sort, tierFilter, priceMin, priceMax]);
+
+  const filtersDefault =
+    tierFilter === "all" && !hasActiveFilters;
 
   return (
     <div>
       <div className="mb-5 flex flex-col gap-3">
+        {/* Sort row */}
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
           {SORTS.map((s) => (
             <button
@@ -96,22 +101,78 @@ export function RankedList({
             </button>
           ))}
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {FILTERS.map((f) => (
+
+        {/* Filter row */}
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setTierFilter("all");
+              setPriceMin("");
+              setPriceMax("");
+            }}
+            className={cn(
+              "h-8 shrink-0 rounded-full border px-3.5 text-xs font-medium transition",
+              filtersDefault
+                ? "border-coral bg-coral text-white"
+                : "border-border bg-card hover:border-foreground",
+            )}
+          >
+            All
+          </button>
+
+          <label className="sr-only" htmlFor="tier-filter">
+            Filter by tier
+          </label>
+          <select
+            id="tier-filter"
+            value={tierFilter}
+            onChange={(e) => setTierFilter(e.target.value as TierFilter)}
+            className="h-8 shrink-0 rounded-full border border-border bg-card px-3.5 text-xs font-medium text-foreground outline-none transition hover:border-foreground focus:border-foreground"
+          >
+            {TIER_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-muted-foreground">$</span>
+            <input
+              type="number"
+              min={0}
+              placeholder="Min"
+              value={priceMin}
+              onChange={(e) => setPriceMin(e.target.value)}
+              className="h-8 w-20 rounded-full border border-border bg-card px-3 text-xs font-medium outline-none transition placeholder:text-muted-foreground focus:border-foreground"
+              aria-label="Minimum price"
+            />
+            <span className="text-xs text-muted-foreground">–</span>
+            <input
+              type="number"
+              min={0}
+              placeholder="Max"
+              value={priceMax}
+              onChange={(e) => setPriceMax(e.target.value)}
+              className="h-8 w-20 rounded-full border border-border bg-card px-3 text-xs font-medium outline-none transition placeholder:text-muted-foreground focus:border-foreground"
+              aria-label="Maximum price"
+            />
+          </div>
+
+          {hasActiveFilters ? (
             <button
-              key={f.key}
               type="button"
-              onClick={() => setFilter(f.key)}
-              className={cn(
-                "h-8 shrink-0 rounded-full border px-3.5 text-xs font-medium transition",
-                filter === f.key
-                  ? "border-coral bg-coral text-white"
-                  : "border-border bg-card hover:border-foreground",
-              )}
+              onClick={() => {
+                setTierFilter("all");
+                setPriceMin("");
+                setPriceMax("");
+              }}
+              className="h-8 shrink-0 rounded-full border border-border px-3.5 text-xs font-semibold text-muted-foreground transition hover:border-foreground hover:text-foreground"
             >
-              {f.label}
+              Reset
             </button>
-          ))}
+          ) : null}
         </div>
       </div>
 
@@ -126,7 +187,9 @@ export function RankedList({
               key={p.id}
               product={p}
               userVote={userVotes[p.id] ?? null}
-              elevated={sort === "top" && filter === "all" && p.rank === 1}
+              elevated={
+                sort === "top" && filtersDefault && !hasActiveFilters && p.rank === 1
+              }
             />
           ))}
         </div>
