@@ -4,31 +4,48 @@ import { Bookmark, ExternalLink } from "lucide-react";
 
 import { useProductVoteCount } from "@/components/product/ProductVoteProvider";
 import { VoteButtons } from "@/components/product/VoteButtons";
+import { TierBadge } from "@/components/product/TierBadge";
 import { formatCount } from "@/lib/utils";
 import type { UserVote } from "@/lib/db/votes";
 
+export function ProductDetailRankBadge() {
+  const { tier, rank, categoryName } = useProductVoteCount();
+
+  return (
+    <div className="flex items-center gap-2.5">
+      <TierBadge tier={tier} size="lg" />
+      <span className="rounded-full bg-secondary px-3 py-1 text-sm font-semibold">
+        #{rank} in {categoryName}
+      </span>
+    </div>
+  );
+}
+
 export function ProductDetailVoteActions({
   productId,
-  initialNetVotes,
+  initialUpvotes,
+  initialDownvotes,
   initialUserVote,
   price,
   affiliateUrl,
 }: {
   productId: string;
-  initialNetVotes: number;
+  initialUpvotes: number;
+  initialDownvotes: number;
   initialUserVote: UserVote;
   price: string;
   affiliateUrl: string;
 }) {
-  const { setNetVotes } = useProductVoteCount();
+  const { onTallyChange } = useProductVoteCount();
 
   return (
     <div className="mt-6 flex flex-wrap items-center gap-3">
       <VoteButtons
         productId={productId}
-        initialNetVotes={initialNetVotes}
+        initialUpvotes={initialUpvotes}
+        initialDownvotes={initialDownvotes}
         initialUserVote={initialUserVote}
-        onNetVotesChange={setNetVotes}
+        onTallyChange={onTallyChange}
       />
       <button
         type="button"

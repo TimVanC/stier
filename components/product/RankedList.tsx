@@ -1,10 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 import { ProductRow } from "@/components/product/ProductRow";
+import type { VoteTallyState } from "@/components/product/VoteButtons";
 import { Input } from "@/components/ui/input";
+import { fetchVoteSnapshot } from "@/lib/actions/vote-read";
+import {
+  mergeVoteSnapshot,
+  userVotesForProducts,
+} from "@/lib/db/merge-votes";
+import { recomputeRankedProducts } from "@/lib/recompute-rankings";
+import { createClient } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import type { RankedProduct, Tier } from "@/types";
 import type { UserVote } from "@/lib/db/votes";
@@ -40,15 +48,82 @@ function parsePrice(price: string): number {
 
 export function RankedList({
   products,
-  userVotes = {},
+  userVotes: initialUserVotes = {},
 }: {
   products: RankedProduct[];
   userVotes?: Record<string, UserVote>;
 }) {
+  const categorySlug = products[0]?.categorySlug ?? "";
+  const [seedBase] = useState(products);
+  const [liveProducts, setLiveProducts] = useState(products);
+  const [userVotes, setUserVotes] = useState(initialUserVotes);
   const [sort, setSort] = useState<SortKey>("top");
   const [tierFilter, setTierFilter] = useState<TierFilter>("all");
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
+
+  const productIds = useMemo(
+    () => liveProducts.map((p) => p.id),
+    [liveProducts],
+  );
+
+  useEffect(() => {
+    setLiveProducts(products);
+    setUserVotes(initialUserVotes);
+  }, [products, initialUserVotes]);
+
+  const refreshFromServer = useCallback(async () => {
+    if (productIds.length === 0) return;
+    const snapshot = await fetchVoteSnapshot(productIds);
+    const merged = mergeVoteSnapshot(seedBase, categorySlug, snapshot);
+    setLiveProducts(merged);
+    setUserVotes(userVotesForProducts(merged, snapshot));
+  }, [productIds, seedBase, categorySlug]);
+
+  useEffect(() => {
+    if (productIds.length === 0) return;
+
+    const supabase = createClient();
+    const channel = supabase
+      .channel(`category-votes:${categorySlug}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "votes",
+          filter: `product_id=in.(${productIds.join(",")})`,
+        },
+        () => {
+          void refreshFromServer();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [categorySlug, productIds, refreshFromServer]);
+
+  const handleProductTallyChange = useCallback(
+    (productId: string, tally: VoteTallyState) => {
+      setUserVotes((prev) => ({ ...prev, [productId]: tally.userVote }));
+      setLiveProducts((prev) => {
+        const updated = prev.map((p) =>
+          p.id === productId
+            ? {
+                ...p,
+                upvotes: tally.upvotes,
+                downvotes: tally.downvotes,
+                netVotes: tally.netVotes,
+              }
+            : p,
+        );
+        return recomputeRankedProducts(updated);
+      });
+    },
+    [],
+  );
 
   const hasActiveFilters =
     tierFilter !== "all" || priceMin !== "" || priceMax !== "";
@@ -57,7 +132,7 @@ export function RankedList({
     const min = priceMin ? Number(priceMin) : null;
     const max = priceMax ? Number(priceMax) : null;
 
-    let list = products.filter((p) => {
+    let list = liveProducts.filter((p) => {
       if (tierFilter !== "all" && p.tier !== tierFilter) return false;
       const price = parsePrice(p.price);
       if (min !== null && !Number.isNaN(min) && price < min) return false;
@@ -80,12 +155,11 @@ export function RankedList({
         list.sort((a, b) => a.rank - b.rank);
     }
     return list;
-  }, [products, sort, tierFilter, priceMin, priceMax]);
+  }, [liveProducts, sort, tierFilter, priceMin, priceMax]);
 
   return (
     <div>
       <div className="mb-5 flex flex-col gap-3">
-        {/* Sort row — All resets sort to default (Top Ranked) */}
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
           <button
             type="button"
@@ -116,7 +190,6 @@ export function RankedList({
           ))}
         </div>
 
-        {/* Filter row — tier, price range, reset */}
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
             <label className="sr-only" htmlFor="tier-filter">
@@ -193,9 +266,8 @@ export function RankedList({
               key={p.id}
               product={p}
               userVote={userVotes[p.id] ?? null}
-              elevated={
-                sort === "top" && !hasActiveFilters && p.rank === 1
-              }
+              elevated={sort === "top" && !hasActiveFilters && p.rank === 1}
+              onTallyChange={(tally) => handleProductTallyChange(p.id, tally)}
             />
           ))}
         </div>

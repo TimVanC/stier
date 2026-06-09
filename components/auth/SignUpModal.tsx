@@ -68,16 +68,15 @@ export function SignUpModal({
           <SignupForm embedded onSuccess={handleSuccess} />
         </div>
 
-        <p className="mt-4 text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
+        <div className="mt-4">
           <Link
             href="/login"
-            className="font-semibold text-foreground underline underline-offset-2 hover:text-coral"
             onClick={() => onOpenChange(false)}
+            className="inline-flex h-11 w-full items-center justify-center rounded-lg border border-border bg-card text-sm font-semibold transition hover:border-foreground hover:bg-secondary"
           >
             Log in
           </Link>
-        </p>
+        </div>
       </div>
     </dialog>
   );

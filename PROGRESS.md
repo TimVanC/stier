@@ -78,10 +78,12 @@ Migration: `supabase/migrations/20260609214500_security_hardening.sql` (applied 
 ## Phase 3 — Voting (Jun 9)
 - [x] **DB catalog seed** — `scripts/seed-catalog.mjs` + `scripts/catalog-seed-data.json`; 8 categories + 35 products with deterministic UUIDs (`lib/db/uuid.ts`) matching seed slugs; `npm run db:seed`
 - [x] **Realtime** — `votes` table added to `supabase_realtime` publication (`20260610190000_votes_realtime.sql`)
-- [x] **VoteButtons → Supabase** — `castVote` / `removeVote` server actions; optimistic UI; active up/down state; click same button removes vote; rate-limited server-side
-- [x] **Sign-up modal** — anonymous vote clicks open `SignUpModal` (no hard redirect); `AuthGateProvider` on ranked + product pages
-- [x] **Live tallies** — server `getVoteSnapshot()` on page load; Supabase Realtime subscription per product refreshes net vote count; product detail stats bar stays in sync via `ProductVoteProvider`
-- [x] Wired on **ranked category page** (`ProductRow` / `RankedList`) and **product detail page** (`ProductDetailVoteActions` + stats bar)
+- [x] **VoteButtons → Supabase** — `castVote` / `removeVote` server actions; optimistic UI; active up/down state; click same button removes vote; switch vote on opposite click; rate-limited server-side
+- [x] **Sign-up modal** — anonymous vote clicks open `SignUpModal` (embedded sign-up form + Log in button; no hard redirect); `AuthGateProvider` on ranked + product pages
+- [x] **Live tallies** — server `getVoteSnapshot()` on page load; user votes fetched and reflected in button active state
+- [x] **Category realtime** — `RankedList` subscribes to all product votes in the category; tallies refresh when other users vote
+- [x] **Live rankings** — `lib/recompute-rankings.ts` recalculates score, rank, and relative tier after each vote (via `mergeVoteSnapshot` + client-side updates in `RankedList` / `ProductVoteProvider`)
+- [x] Wired on **ranked category page** (`ProductRow` / `RankedList`) and **product detail page** (`ProductDetailVoteActions` + live tier/rank badge + stats bar)
 - [x] Homepage `ProductCard` shows static vote count only (card is a link — voting happens on detail/list pages)
 
 ---
@@ -206,8 +208,7 @@ _Cursor should add to this section whenever a meaningful technical decision is m
 | Jun 9 | Auth forms use inline error text (not toast) | No toast system yet; inline errors are accessible and avoid `alert()` |
 | Jun 9 | Phase 2 built on a local seed-data module, not live Supabase reads | Lets every page look populated now; swap to queries in the data-layer phase. Shapes mirror the DB schema |
 | Jun 9 | Tuned seed review counts to be monotonic with intended quality | The .cursorrules score formula weights `reviewCount*2`, which dominated with large review numbers; tuning keeps the formula intact while producing realistic #1s and a proper S→F tier spread |
-| Jun 9 | Placeholder imagery via `ImagePlaceholder` (hatch + icon + label) | No real product images seeded yet; reads as intentional rather than empty |
-
+| Jun 9 | Live vote tallies merged into ranked lists via `getVoteSnapshot` + `mergeVoteSnapshot`; tiers/ranks recomputed with `recomputeRankedProducts` after each vote | Keeps relative percentile tier logic accurate while review/recency data still comes from seed |
 ---
 
 ## Files Created
@@ -254,7 +255,13 @@ _Cursor should update this as files are created._
 | app/categories/[slug]/[product-slug]/page.tsx | Product detail (SSG + metadata) |
 | components/home/* | Hero, FeaturedCategories, RisingThisWeek |
 | components/category/* | CategoryCard, CategoryBrowser |
-| components/product/* | TierBadge, VoteButtons, ProductCard, ProductRow, RankedList |
+| lib/recompute-rankings.ts | Re-sort category products and assign tiers from live vote tallies |
+| lib/db/votes.ts, merge-votes.ts | Vote snapshot fetch + merge with seed rows |
+| lib/actions/votes.ts, vote-read.ts | Secure vote write/read server actions |
+| components/auth/AuthGateProvider.tsx, SignUpModal.tsx | Anonymous vote gating with sign-up modal |
+| components/product/VoteButtons.tsx | Optimistic vote UI with Supabase + realtime |
+| components/product/RankedList.tsx | Category-level realtime + live rank/tier updates |
+| components/product/ProductVoteProvider.tsx | Product detail live tier/rank + net vote sync |
 | components/review/* | Stars, ReviewCard, ReviewsSection |
 | components/shared/* | TierBars, ImagePlaceholder, EmptyState |
 
@@ -291,9 +298,11 @@ Phase 2 (Core Browsing) is complete and fully populated from `lib/seed-data.ts`:
 (sort/filter + sidebar), and product detail (review summary + reviews + related + mobile
 sticky buy). All 46 routes build; category/product pages are statically generated.
 
-IMPORTANT for next session: the UI currently reads from the local seed module, NOT Supabase.
-Phase 3 should (1) wire `VoteButtons` to real Supabase votes (one per user) + the sign-up
-modal, and (2) start replacing seed reads with DB queries (plus a seed script to load the
-sample data into Supabase). The Navbar still needs a mobile hamburger menu. `/search`,
+Phase 3 (Voting) is complete: VoteButtons call Supabase server actions with optimistic UI,
+sign-up modal for anonymous users, category-level realtime on ranked lists, and live
+tier/rank recalculation via `recomputeRankedProducts`. Product detail tier badge and
+rank update after votes.
+
+Phase 4 next: review submission form + Supabase wiring. The Navbar still needs a mobile
 `/submit`, `/profile/*`, `/forgot-password`, `/terms`, `/privacy` are linked but not built yet.
 Use `npm run dev` to view.

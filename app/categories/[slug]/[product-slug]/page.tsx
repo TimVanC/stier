@@ -6,11 +6,10 @@ import { ChevronRight, MessageSquare } from "lucide-react";
 import { AuthGateProvider } from "@/components/auth/AuthGateProvider";
 import { ImagePlaceholder } from "@/components/shared/ImagePlaceholder";
 import { ProductCard } from "@/components/product/ProductCard";
-import { ProductDetailStatsBar, ProductDetailVoteActions } from "@/components/product/ProductDetailVoteUI";
+import { ProductDetailStatsBar, ProductDetailRankBadge, ProductDetailVoteActions } from "@/components/product/ProductDetailVoteUI";
 import { ProductVoteProvider } from "@/components/product/ProductVoteProvider";
 import { ReviewsSection } from "@/components/review/ReviewsSection";
 import { Stars } from "@/components/review/Stars";
-import { TierBadge } from "@/components/product/TierBadge";
 import { mergeVoteSnapshot } from "@/lib/db/merge-votes";
 import { dbProductId, getVoteSnapshot } from "@/lib/db/votes";
 import {
@@ -56,6 +55,7 @@ export default async function ProductDetailPage({
   const seedProduct = getProductBySlug(params.slug, params["product-slug"]);
   if (!seedProduct) notFound();
 
+  const seedCategoryProducts = getRankedProducts(params.slug);
   const productId = dbProductId(params.slug, params["product-slug"]);
   const snapshot = await getVoteSnapshot([productId]);
   const [product] = mergeVoteSnapshot([seedProduct], params.slug, snapshot);
@@ -69,7 +69,11 @@ export default async function ProductDetailPage({
 
   return (
     <AuthGateProvider isAuthenticated={snapshot.isAuthenticated}>
-      <ProductVoteProvider initialNetVotes={product.netVotes}>
+      <ProductVoteProvider
+        initialProduct={product}
+        categorySlug={params.slug}
+        seedProducts={seedCategoryProducts}
+      >
       <div className="container py-8 pb-28 md:py-12 lg:pb-12">
       {/* Breadcrumb */}
       <nav className="mb-5 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
@@ -99,12 +103,7 @@ export default async function ProductDetailPage({
         />
 
         <div>
-          <div className="flex items-center gap-2.5">
-            <TierBadge tier={product.tier} size="lg" />
-            <span className="rounded-full bg-secondary px-3 py-1 text-sm font-semibold">
-              #{product.rank} in {product.categoryName}
-            </span>
-          </div>
+          <ProductDetailRankBadge />
 
           <div className="mt-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
             {product.brand}
@@ -126,7 +125,8 @@ export default async function ProductDetailPage({
 
           <ProductDetailVoteActions
             productId={product.id}
-            initialNetVotes={product.netVotes}
+            initialUpvotes={product.upvotes}
+            initialDownvotes={product.downvotes}
             initialUserVote={userVote}
             price={product.price}
             affiliateUrl={product.affiliateUrl}

@@ -8,7 +8,11 @@ import { fetchProductVoteTally } from "@/lib/actions/vote-read";
 import { castVote, removeVote } from "@/lib/actions/votes";
 import { createClient } from "@/lib/supabase";
 import { cn, formatCount } from "@/lib/utils";
-import type { UserVote } from "@/lib/db/votes";
+import type { ProductVoteTally, UserVote } from "@/lib/db/votes";
+
+export interface VoteTallyState extends ProductVoteTally {
+  userVote: UserVote;
+}
 
 /**
  * Supabase-backed vote control with optimistic UI, active-state for the
@@ -16,42 +20,75 @@ import type { UserVote } from "@/lib/db/votes";
  */
 export function VoteButtons({
   productId,
-  initialNetVotes,
+  initialUpvotes,
+  initialDownvotes,
   initialUserVote = null,
   orientation = "horizontal",
   size = "md",
-  onNetVotesChange,
+  syncRealtime = true,
+  onTallyChange,
 }: {
   productId: string;
-  initialNetVotes: number;
+  initialUpvotes: number;
+  initialDownvotes: number;
   initialUserVote?: UserVote;
   orientation?: "horizontal" | "vertical";
   size?: "sm" | "md";
-  onNetVotesChange?: (net: number) => void;
+  /** When false, parent handles realtime refresh (e.g. category list). */
+  syncRealtime?: boolean;
+  onTallyChange?: (tally: VoteTallyState) => void;
 }) {
   const authGate = useOptionalAuthGate();
   const [userVote, setUserVote] = useState<UserVote>(initialUserVote);
-  const [netVotes, setNetVotes] = useState(initialNetVotes);
+  const [upvotes, setUpvotes] = useState(initialUpvotes);
+  const [downvotes, setDownvotes] = useState(initialDownvotes);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  const netVotes = upvotes - downvotes;
   const dim = size === "sm" ? "h-8 w-8" : "h-9 w-9";
   const icon = size === "sm" ? "size-3.5" : "size-4";
 
+  const emitTally = useCallback(
+    (
+      nextUp: number,
+      nextDown: number,
+      nextUserVote: UserVote,
+    ) => {
+      onTallyChange?.({
+        upvotes: nextUp,
+        downvotes: nextDown,
+        netVotes: nextUp - nextDown,
+        userVote: nextUserVote,
+      });
+    },
+    [onTallyChange],
+  );
+
+  const applyTally = useCallback(
+    (nextUp: number, nextDown: number, nextUserVote: UserVote) => {
+      setUpvotes(nextUp);
+      setDownvotes(nextDown);
+      setUserVote(nextUserVote);
+      emitTally(nextUp, nextDown, nextUserVote);
+    },
+    [emitTally],
+  );
+
   const refreshTally = useCallback(async () => {
     const tally = await fetchProductVoteTally(productId);
-    setNetVotes(tally.netVotes);
-    setUserVote(tally.userVote);
-    onNetVotesChange?.(tally.netVotes);
-  }, [productId, onNetVotesChange]);
+    applyTally(tally.upvotes, tally.downvotes, tally.userVote);
+  }, [productId, applyTally]);
 
   useEffect(() => {
-    setNetVotes(initialNetVotes);
+    setUpvotes(initialUpvotes);
+    setDownvotes(initialDownvotes);
     setUserVote(initialUserVote);
-  }, [initialNetVotes, initialUserVote, productId]);
+  }, [initialUpvotes, initialDownvotes, initialUserVote, productId]);
 
-  // Realtime: when anyone votes on this product, refresh the tally from the server.
   useEffect(() => {
+    if (!syncRealtime) return;
+
     const supabase = createClient();
     const channel = supabase
       .channel(`votes:${productId}`)
@@ -72,21 +109,16 @@ export function VoteButtons({
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [productId, refreshTally]);
+  }, [productId, refreshTally, syncRealtime]);
 
   function applyOptimistic(next: UserVote) {
-    const prev = userVote;
-    let delta = 0;
-    if (prev === "upvote") delta -= 1;
-    if (prev === "downvote") delta += 1;
-    if (next === "upvote") delta += 1;
-    if (next === "downvote") delta -= 1;
-    setUserVote(next);
-    setNetVotes((current) => {
-      const nextNet = current + delta;
-      onNetVotesChange?.(nextNet);
-      return nextNet;
-    });
+    let nextUp = upvotes;
+    let nextDown = downvotes;
+    if (userVote === "upvote") nextUp -= 1;
+    if (userVote === "downvote") nextDown -= 1;
+    if (next === "upvote") nextUp += 1;
+    if (next === "downvote") nextDown += 1;
+    applyTally(nextUp, nextDown, next);
   }
 
   function handleVote(next: UserVote) {
@@ -97,9 +129,10 @@ export function VoteButtons({
       return;
     }
 
-    const previousVote = userVote;
-    const previousNet = netVotes;
-    const removing = previousVote === next;
+    const previousUp = upvotes;
+    const previousDown = downvotes;
+    const previousUserVote = userVote;
+    const removing = previousUserVote === next;
     applyOptimistic(removing ? null : next);
 
     startTransition(async () => {
@@ -108,13 +141,11 @@ export function VoteButtons({
         : await castVote(productId, next as "upvote" | "downvote");
 
       if (!result.ok) {
-        setUserVote(previousVote);
-        setNetVotes(previousNet);
+        applyTally(previousUp, previousDown, previousUserVote);
         setError(result.error);
         return;
       }
 
-      // Reconcile with server (covers rate-limit edge cases + other voters).
       await refreshTally();
     });
   }

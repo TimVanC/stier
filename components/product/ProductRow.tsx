@@ -9,7 +9,7 @@ import {
 
 import { ImagePlaceholder } from "@/components/shared/ImagePlaceholder";
 import { TierBadge } from "@/components/product/TierBadge";
-import { VoteButtons } from "@/components/product/VoteButtons";
+import { VoteButtons, type VoteTallyState } from "@/components/product/VoteButtons";
 import { cn, formatCount } from "@/lib/utils";
 import type { RankedProduct } from "@/types";
 import type { UserVote } from "@/lib/db/votes";
@@ -19,10 +19,12 @@ export function ProductRow({
   product,
   userVote = null,
   elevated = false,
+  onTallyChange,
 }: {
   product: RankedProduct;
   userVote?: UserVote;
   elevated?: boolean;
+  onTallyChange?: (tally: VoteTallyState) => void;
 }) {
   const href = `/categories/${product.categorySlug}/${product.slug}`;
   const rising = product.rankChange >= 0;
@@ -86,8 +88,11 @@ export function ProductRow({
       <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-end sm:justify-center">
         <VoteButtons
           productId={product.id}
-          initialNetVotes={product.netVotes}
+          initialUpvotes={product.upvotes}
+          initialDownvotes={product.downvotes}
           initialUserVote={userVote}
+          syncRealtime={false}
+          onTallyChange={onTallyChange}
         />
         <div className="flex items-center gap-2">
           <button

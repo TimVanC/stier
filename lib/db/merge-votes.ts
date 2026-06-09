@@ -1,4 +1,5 @@
 import { dbProductId } from "@/lib/db/votes";
+import { recomputeRankedProducts } from "@/lib/recompute-rankings";
 import type { RankedProduct } from "@/types";
 import type { VoteSnapshot } from "@/lib/db/votes";
 
@@ -8,7 +9,7 @@ export function mergeVoteSnapshot(
   categorySlug: string,
   snapshot: VoteSnapshot,
 ): RankedProduct[] {
-  return products.map((product) => {
+  const merged = products.map((product) => {
     const id = dbProductId(categorySlug, product.slug);
     const tally = snapshot.tallies[id];
     return {
@@ -19,6 +20,7 @@ export function mergeVoteSnapshot(
       netVotes: tally?.netVotes ?? 0,
     };
   });
+  return recomputeRankedProducts(merged);
 }
 
 export function userVotesForProducts(
