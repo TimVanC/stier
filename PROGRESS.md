@@ -49,6 +49,12 @@
 - [x] **Ranked sidebar** — "On the rise" + "Falling" momentum sections below category stats
 - [x] **Ranked filters** — All pill, tier dropdown (S+–F), price min/max, Reset when active
 
+## Homepage Polish Fixes (Jun 9)
+- [x] **Hero stack cards** — middle + back cards fully populated from seed data (tier badge, brand, name, weekly votes); reference-style 30px tier badges + hatch thumbs
+- [x] **Sidebar momentum** — "On the rise" / "Falling" entries show `Brand · Product Name`
+- [x] **Filter bar** — "All" pill on sort row (resets sort to Top Ranked); tier dropdown + price inputs styled with shadcn Input; coral text Reset when tier/price filters active
+- [x] **Climbing the rankings** — `ClimbingProductCard` rebuilt to match reference `.pcard` (rank/tier overlay, 200px hatch image, body meta row, foot votes + rank change)
+
 ## Security Audit & Hardening (Jun 9)
 Migration: `supabase/migrations/20260609214500_security_hardening.sql` (applied + verified).
 

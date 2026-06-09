@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 import { ProductRow } from "@/components/product/ProductRow";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { RankedProduct, Tier } from "@/types";
 import type { UserVote } from "@/lib/db/votes";
@@ -27,6 +29,9 @@ const TIER_OPTIONS: { value: TierFilter; label: string }[] = [
   { value: "D", label: "D" },
   { value: "F", label: "F" },
 ];
+
+const filterControlClass =
+  "h-9 rounded-lg border border-border bg-card text-sm font-medium text-foreground outline-none transition hover:border-foreground focus-visible:border-foreground focus-visible:ring-4 focus-visible:ring-foreground/5";
 
 function parsePrice(price: string): number {
   const match = price.replace(/,/g, "").match(/\$\s*(\d+(\.\d+)?)/);
@@ -77,14 +82,23 @@ export function RankedList({
     return list;
   }, [products, sort, tierFilter, priceMin, priceMax]);
 
-  const filtersDefault =
-    tierFilter === "all" && !hasActiveFilters;
-
   return (
     <div>
       <div className="mb-5 flex flex-col gap-3">
-        {/* Sort row */}
+        {/* Sort row — All resets sort to default (Top Ranked) */}
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          <button
+            type="button"
+            onClick={() => setSort("top")}
+            className={cn(
+              "h-9 shrink-0 rounded-full border px-4 text-sm font-medium transition",
+              sort === "top"
+                ? "border-foreground bg-navy text-white"
+                : "border-border bg-card hover:border-foreground",
+            )}
+          >
+            All
+          </button>
           {SORTS.map((s) => (
             <button
               key={s.key}
@@ -102,60 +116,52 @@ export function RankedList({
           ))}
         </div>
 
-        {/* Filter row */}
+        {/* Filter row — tier, price range, reset */}
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              setTierFilter("all");
-              setPriceMin("");
-              setPriceMax("");
-            }}
-            className={cn(
-              "h-8 shrink-0 rounded-full border px-3.5 text-xs font-medium transition",
-              filtersDefault
-                ? "border-coral bg-coral text-white"
-                : "border-border bg-card hover:border-foreground",
-            )}
-          >
-            All
-          </button>
+          <div className="relative">
+            <label className="sr-only" htmlFor="tier-filter">
+              Filter by tier
+            </label>
+            <select
+              id="tier-filter"
+              value={tierFilter}
+              onChange={(e) => setTierFilter(e.target.value as TierFilter)}
+              className={cn(
+                filterControlClass,
+                "appearance-none pl-3 pr-9",
+                tierFilter !== "all" && "border-foreground",
+              )}
+            >
+              {TIER_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
+          </div>
 
-          <label className="sr-only" htmlFor="tier-filter">
-            Filter by tier
-          </label>
-          <select
-            id="tier-filter"
-            value={tierFilter}
-            onChange={(e) => setTierFilter(e.target.value as TierFilter)}
-            className="h-8 shrink-0 rounded-full border border-border bg-card px-3.5 text-xs font-medium text-foreground outline-none transition hover:border-foreground focus:border-foreground"
-          >
-            {TIER_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-muted-foreground">$</span>
-            <input
+          <div className="flex items-center gap-2">
+            <Input
               type="number"
               min={0}
               placeholder="Min"
               value={priceMin}
               onChange={(e) => setPriceMin(e.target.value)}
-              className="h-8 w-20 rounded-full border border-border bg-card px-3 text-xs font-medium outline-none transition placeholder:text-muted-foreground focus:border-foreground"
+              className="h-9 w-24 px-3"
               aria-label="Minimum price"
             />
-            <span className="text-xs text-muted-foreground">–</span>
-            <input
+            <span className="text-sm text-muted-foreground">–</span>
+            <Input
               type="number"
               min={0}
               placeholder="Max"
               value={priceMax}
               onChange={(e) => setPriceMax(e.target.value)}
-              className="h-8 w-20 rounded-full border border-border bg-card px-3 text-xs font-medium outline-none transition placeholder:text-muted-foreground focus:border-foreground"
+              className="h-9 w-24 px-3"
               aria-label="Maximum price"
             />
           </div>
@@ -168,7 +174,7 @@ export function RankedList({
                 setPriceMin("");
                 setPriceMax("");
               }}
-              className="h-8 shrink-0 rounded-full border border-border px-3.5 text-xs font-semibold text-muted-foreground transition hover:border-foreground hover:text-foreground"
+              className="h-9 shrink-0 px-2 text-sm font-semibold text-coral transition hover:text-coral/80"
             >
               Reset
             </button>
@@ -188,7 +194,7 @@ export function RankedList({
               product={p}
               userVote={userVotes[p.id] ?? null}
               elevated={
-                sort === "top" && filtersDefault && !hasActiveFilters && p.rank === 1
+                sort === "top" && !hasActiveFilters && p.rank === 1
               }
             />
           ))}

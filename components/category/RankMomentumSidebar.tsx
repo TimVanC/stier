@@ -36,7 +36,9 @@ export function RankMomentumSidebar({
                   href={`/categories/${p.categorySlug}/${p.slug}`}
                   className="flex items-center justify-between gap-2 rounded-lg px-2 py-2 text-sm transition hover:bg-secondary"
                 >
-                  <span className="min-w-0 truncate font-medium">{p.name}</span>
+                  <span className="min-w-0 truncate font-medium">
+                    {p.brand} · {p.name}
+                  </span>
                   <span className="inline-flex shrink-0 items-center gap-1 font-display text-xs font-bold text-emerald-600">
                     <TrendingUp className="size-3.5" />+{p.rankChange}
                   </span>
@@ -59,7 +61,9 @@ export function RankMomentumSidebar({
                   href={`/categories/${p.categorySlug}/${p.slug}`}
                   className="flex items-center justify-between gap-2 rounded-lg px-2 py-2 text-sm transition hover:bg-secondary"
                 >
-                  <span className="min-w-0 truncate font-medium">{p.name}</span>
+                  <span className="min-w-0 truncate font-medium">
+                    {p.brand} · {p.name}
+                  </span>
                   <span className="inline-flex shrink-0 items-center gap-1 font-display text-xs font-bold text-red-600/80">
                     <TrendingDown className="size-3.5" />
                     {p.rankChange}

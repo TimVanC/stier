@@ -1,10 +1,8 @@
 import Link from "next/link";
 
-import { TierBadge } from "@/components/product/TierBadge";
-import { ImagePlaceholder } from "@/components/shared/ImagePlaceholder";
-import { formatCount } from "@/lib/utils";
+import { cn, formatCount } from "@/lib/utils";
 import { getRankedProducts } from "@/lib/seed-data";
-import type { Tier } from "@/types";
+import type { RankedProduct, Tier } from "@/types";
 
 interface StackRow {
   tier: Tier;
@@ -18,6 +16,29 @@ interface StackCardData {
   totalVotes: number;
   rows: StackRow[];
   className: string;
+}
+
+const TIER_BADGE: Record<Tier, string> = {
+  "S+": "bg-coral text-white ring-2 ring-amber-300",
+  S: "bg-tier-s text-navy",
+  A: "bg-tier-a text-navy",
+  B: "bg-tier-b text-navy",
+  C: "bg-tier-c text-navy",
+  D: "bg-tier-d text-navy",
+  F: "bg-tier-f text-navy",
+};
+
+function toStackRow(p: RankedProduct): StackRow {
+  return {
+    tier: p.tier,
+    name: p.name,
+    brand: p.brand,
+    weeklyVotes: p.weeklyVotes,
+  };
+}
+
+function totalVoteCount(products: RankedProduct[]): number {
+  return products.reduce((s, p) => s + p.upvotes + p.downvotes, 0);
 }
 
 function StackCard({ data }: { data: StackCardData }) {
@@ -35,13 +56,20 @@ function StackCard({ data }: { data: StackCardData }) {
       </div>
       {data.rows.map((row) => (
         <div
-          key={row.name}
+          key={`${row.brand}-${row.name}`}
           className="grid grid-cols-[32px_56px_1fr_60px] items-center gap-3 border-b border-secondary px-5 py-3 last:border-0"
         >
-          <TierBadge tier={row.tier} size="sm" />
-          <ImagePlaceholder
-            label=""
-            className="size-14 rounded-[10px] border-0 bg-secondary"
+          <span
+            className={cn(
+              "inline-flex size-[30px] items-center justify-center rounded-lg font-display text-[13px] font-extrabold shadow-[inset_0_0_0_1px_rgba(26,26,46,0.08)]",
+              TIER_BADGE[row.tier],
+            )}
+          >
+            {row.tier === "S+" ? "S+" : row.tier}
+          </span>
+          <div
+            className="relative size-14 overflow-hidden rounded-[10px] bg-secondary bg-hatch"
+            aria-hidden
           />
           <span>
             <span className="block text-sm font-semibold leading-tight">
@@ -67,40 +95,27 @@ function StackCard({ data }: { data: StackCardData }) {
 export function HeroStackCards() {
   const headphones = getRankedProducts("headphones");
   const slippers = getRankedProducts("slippers");
+  const kettles = getRankedProducts("cast-iron-skillets");
 
   const front: StackCardData = {
     title: "Over-ear headphones",
-    totalVotes: headphones.reduce((s, p) => s + p.upvotes + p.downvotes, 0),
-    rows: headphones.slice(0, 4).map((p) => ({
-      tier: p.tier,
-      name: p.name,
-      brand: p.brand,
-      weeklyVotes: p.weeklyVotes,
-    })),
-    className:
-      "top-0 z-[3] h-[380px] hero-stack-front",
+    totalVotes: totalVoteCount(headphones),
+    rows: headphones.slice(0, 4).map(toStackRow),
+    className: "top-0 z-[3] h-[380px] hero-stack-front",
   };
 
   const middle: StackCardData = {
     title: "Slippers",
-    totalVotes: slippers.reduce((s, p) => s + p.upvotes + p.downvotes, 0),
-    rows: slippers.slice(0, 3).map((p) => ({
-      tier: p.tier,
-      name: p.name,
-      brand: p.brand,
-      weeklyVotes: p.weeklyVotes,
-    })),
+    totalVotes: totalVoteCount(slippers),
+    rows: slippers.slice(0, 3).map(toStackRow),
     className:
       "top-[60px] z-[2] h-[380px] translate-x-[22px] opacity-90 hero-stack-middle",
   };
 
   const back: StackCardData = {
     title: "Pour-over kettles",
-    totalVotes: 8210,
-    rows: [
-      { tier: "S", name: "Stagg EKG Pro", brand: "Fellow", weeklyVotes: 421 },
-      { tier: "A", name: "Buono", brand: "Hario", weeklyVotes: 184 },
-    ],
+    totalVotes: totalVoteCount(kettles),
+    rows: kettles.slice(0, 2).map(toStackRow),
     className:
       "top-[120px] z-[1] h-[380px] -rotate-1 translate-x-10 opacity-55",
   };
