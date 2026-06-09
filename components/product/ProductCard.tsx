@@ -72,6 +72,8 @@ export function ProductCard({ product }: { product: RankedProduct }) {
           <span className="size-[3px] rounded-full bg-muted-foreground/50" />
           <span>{product.price}</span>
           <span className="size-[3px] rounded-full bg-muted-foreground/50" />
+          <span>{formatCount(product.reviewCount)} reviews</span>
+          <span className="size-[3px] rounded-full bg-muted-foreground/50" />
           <span
             className={cn(
               "font-semibold",

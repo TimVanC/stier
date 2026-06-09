@@ -49,6 +49,7 @@ export interface RankedProduct extends Product {
 
 export interface Review {
   id: string;
+  userId?: string;
   username: string;
   rating: number;
   title: string;
@@ -58,4 +59,6 @@ export interface Review {
   ownsProduct: boolean;
   helpfulCount: number;
   daysAgo: number;
+  createdAt?: string;
+  isOwn?: boolean;
 }

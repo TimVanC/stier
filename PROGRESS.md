@@ -88,13 +88,28 @@ Migration: `supabase/migrations/20260609214500_security_hardening.sql` (applied 
 
 ---
 
+## Phase 4 — Reviews (Jun 9)
+Migration: `supabase/migrations/20260610193000_review_helpful_rpc.sql` (applied).
+
+- [x] **Review form** — `ReviewForm` on product detail: star rating, headline, body, pros/cons, owns-product; calls `submitReview` / `updateReview` / `deleteReview`
+- [x] **DB reads** — `getProductReviewBundle()` loads reviews + stats + current user's review; `getReviewCounts()` for list/card counts
+- [x] **Review counts** — live counts on `ProductRow`, `ProductCard`, product detail header/stats (merged into ranking recompute on category page)
+- [x] **Sort** — Most Helpful, Most Recent, Highest Rated, Lowest Rated (client-side on DB-loaded reviews)
+- [x] **Helpful votes** — `markReviewHelpful` via `increment_review_helpful()` SECURITY DEFINER RPC
+- [x] **Reporting** — `reportReview` inserts into `reports` table
+- [x] **Auth gate** — anonymous "Write a review" opens the same `SignUpModal` as voting
+- [x] **One review per user** — DB unique `(user_id, product_id)` + upsert error handling
+- [x] **Edit / delete** — owners edit inline form or delete from form; RLS enforces ownership
+
+---
+
 ## In Progress
-- [ ] Phase 4 — Reviews (submit form + Supabase wiring)
+- [ ] Phase 5 — Submissions (submit product page + admin queue)
 
 ---
 
 ## Up Next
-1. Review submission form (Phase 4)
+1. Submit product flow (Phase 5)
 2. Replace remaining seed-data reads with Supabase queries
 3. Phase 9 — personalized For You feed
 4. Set up Vercel deployment
@@ -133,10 +148,12 @@ Migration: `supabase/migrations/20260609214500_security_hardening.sql` (applied 
 - [x] Real time vote updates (Supabase Realtime on `votes`)
 
 ### Phase 4 — Reviews
-- [ ] Review form component
-- [ ] Reviews display on product pages
-- [ ] Review count on product cards
-- [ ] Review sort options
+- [x] Review form component (Supabase insert/update/delete)
+- [x] Reviews display on product pages (from DB)
+- [x] Review count on product cards and ranked rows (from DB)
+- [x] Review sort options (helpful, recent, highest, lowest)
+- [x] Helpful vote + report actions
+- [x] Sign-up modal gate for anonymous reviewers
 
 ### Phase 5 — Submissions
 - [ ] Submit product page
@@ -208,6 +225,7 @@ _Cursor should add to this section whenever a meaningful technical decision is m
 | Jun 9 | Auth forms use inline error text (not toast) | No toast system yet; inline errors are accessible and avoid `alert()` |
 | Jun 9 | Phase 2 built on a local seed-data module, not live Supabase reads | Lets every page look populated now; swap to queries in the data-layer phase. Shapes mirror the DB schema |
 | Jun 9 | Tuned seed review counts to be monotonic with intended quality | The .cursorrules score formula weights `reviewCount*2`, which dominated with large review numbers; tuning keeps the formula intact while producing realistic #1s and a proper S→F tier spread |
+| Jun 9 | Helpful count bumped via `increment_review_helpful()` RPC | Users cannot UPDATE others' review rows under RLS; SECURITY DEFINER keeps the increment safe |
 | Jun 9 | Live vote tallies merged into ranked lists via `getVoteSnapshot` + `mergeVoteSnapshot`; tiers/ranks recomputed with `recomputeRankedProducts` after each vote | Keeps relative percentile tier logic accurate while review/recency data still comes from seed |
 ---
 
@@ -256,13 +274,9 @@ _Cursor should update this as files are created._
 | components/home/* | Hero, FeaturedCategories, RisingThisWeek |
 | components/category/* | CategoryCard, CategoryBrowser |
 | lib/recompute-rankings.ts | Re-sort category products and assign tiers from live vote tallies |
-| lib/db/votes.ts, merge-votes.ts | Vote snapshot fetch + merge with seed rows |
-| lib/actions/votes.ts, vote-read.ts | Secure vote write/read server actions |
-| components/auth/AuthGateProvider.tsx, SignUpModal.tsx | Anonymous vote gating with sign-up modal |
-| components/product/VoteButtons.tsx | Optimistic vote UI with Supabase + realtime |
-| components/product/RankedList.tsx | Category-level realtime + live rank/tier updates |
-| components/product/ProductVoteProvider.tsx | Product detail live tier/rank + net vote sync |
-| components/review/* | Stars, ReviewCard, ReviewsSection |
+| lib/db/reviews.ts | Review bundle fetch, batch counts, merge helper |
+| lib/actions/reviews.ts, review-read.ts | Submit/update/delete/helpful/report + client refresh |
+| components/review/* | ReviewForm, ReviewCard, ProductReviewsBlock, StarRatingInput, Stars |
 | components/shared/* | TierBars, ImagePlaceholder, EmptyState |
 
 ---
@@ -303,6 +317,10 @@ sign-up modal for anonymous users, category-level realtime on ranked lists, and 
 tier/rank recalculation via `recomputeRankedProducts`. Product detail tier badge and
 rank update after votes.
 
-Phase 4 next: review submission form + Supabase wiring. The Navbar still needs a mobile
+Phase 4 (Reviews) is complete: review form on product detail writes to Supabase,
+reviews/stats load from DB, counts on cards and ranked rows, sort + helpful + report
+actions wired, one-review-per-user enforced, edit/delete for owners.
+
+Phase 5 next: submit product flow + admin queue. The Navbar still needs a mobile
 `/submit`, `/profile/*`, `/forgot-password`, `/terms`, `/privacy` are linked but not built yet.
 Use `npm run dev` to view.

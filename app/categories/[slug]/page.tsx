@@ -12,7 +12,9 @@ import {
   mergeVoteSnapshot,
   userVotesForProducts,
 } from "@/lib/db/merge-votes";
+import { getReviewCounts, mergeReviewCounts } from "@/lib/db/reviews";
 import { dbProductId, getVoteSnapshot } from "@/lib/db/votes";
+import { recomputeRankedProducts } from "@/lib/recompute-rankings";
 import { getNavList, getNavParent, NAV_PARENTS } from "@/lib/nav-catalog";
 import {
   getCategories,
@@ -91,10 +93,14 @@ export default async function RankedCategoryPage({
     dbProductId(productCategorySlug, p.slug),
   );
   const snapshot = await getVoteSnapshot(productIds);
-  const products = mergeVoteSnapshot(
+  const reviewCounts = await getReviewCounts(productIds);
+  let products = mergeVoteSnapshot(
     seedProducts,
     productCategorySlug,
     snapshot,
+  );
+  products = recomputeRankedProducts(
+    mergeReviewCounts(products, reviewCounts),
   );
   const userVotes = userVotesForProducts(products, snapshot);
 
