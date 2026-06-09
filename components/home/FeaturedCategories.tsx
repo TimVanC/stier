@@ -4,9 +4,9 @@ import { ArrowRight } from "lucide-react";
 import { CategoryCard } from "@/components/category/CategoryCard";
 import { TierBadge } from "@/components/product/TierBadge";
 import {
-  getCategoriesWithStats,
-  getRankedProducts,
-} from "@/lib/seed-data";
+  getFeaturedCategoriesFromDb,
+  loadRankedProductsForCategory,
+} from "@/lib/db/catalog";
 import { formatCount } from "@/lib/utils";
 import type { Tier } from "@/types";
 
@@ -18,11 +18,16 @@ const TIER_LEGEND: { tier: Tier; label: string; note: string }[] = [
   { tier: "C", label: "Niche / Acceptable", note: "Only if it fits" },
 ];
 
-export function FeaturedCategories() {
-  const all = getCategoriesWithStats();
-  const big = all.find((c) => c.slug === "coffee-beans") ?? all[0];
-  const rest = all.filter((c) => c.slug !== big.slug).slice(0, 4);
-  const bigBoard = getRankedProducts(big.slug).slice(0, 4);
+export async function FeaturedCategories() {
+  const featured = await getFeaturedCategoriesFromDb();
+  if (featured.length === 0) return null;
+
+  const big = featured[0];
+  const rest = featured.slice(1, 5);
+  const bigBoard = (await loadRankedProductsForCategory(big.slug)).slice(
+    0,
+    4,
+  );
 
   return (
     <section className="container py-12 md:py-16">
@@ -81,7 +86,7 @@ export function FeaturedCategories() {
                   </span>
                 </span>
                 <span className="font-display text-xs font-bold text-white">
-                  ↑ {formatCount(p.weeklyVotes)}
+                  ↑ {formatCount(p.netVotes)}
                 </span>
               </div>
             ))}

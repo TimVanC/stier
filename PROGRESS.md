@@ -1,6 +1,6 @@
 # Stier — Build Progress
 
-## Status: Phase 7 — Admin Panel (complete) · Phase 6 User Dashboard (complete)
+## Status: Phase 7 — Admin Panel (complete) · Browsing on Supabase (complete)
 
 ---
 
@@ -137,6 +137,17 @@ Migration: `supabase/migrations/20260610210000_profile_ban.sql` (applied).
 
 ---
 
+## Supabase Catalog Migration (Jun 9)
+
+- [x] **`lib/db/catalog.ts`** — categories, ranked products, and product detail from Supabase with seed fallback when DB is empty
+- [x] **`/categories`** — category list reads active categories + live stats from DB
+- [x] **`/categories/[slug]`** — ranked list loads approved `products` for the category, merges live votes/reviews/tiers
+- [x] **`/categories/[slug]/[product-slug]`** — product detail from approved products table (real UUIDs)
+- [x] **Homepage featured** — `FeaturedCategories` reads `is_featured = true` categories from Supabase
+- [x] **Vote bundle fix** — `lib/db/vote-types.ts` keeps client components out of server-only Supabase imports
+
+---
+
 ## In Progress
 - [ ] Phase 8 — Waitlist
 
@@ -144,7 +155,7 @@ Migration: `supabase/migrations/20260610210000_profile_ban.sql` (applied).
 
 ## Up Next
 1. Waitlist page + email capture (Phase 8)
-2. Replace remaining seed-data reads with Supabase queries
+2. Wire remaining seed-data pages (hero stats, rising, trending, for-you) to Supabase
 3. Phase 9 — personalized For You feed
 4. Set up Vercel deployment
 
@@ -382,6 +393,9 @@ Phase 7 (Admin Panel) is complete: `/admin` dashboard with live stats; submissio
 queue with approve/reject; category CRUD; flagged review moderation; user search with
 ban and clear-votes actions. Ban enforcement blocks votes, reviews, and submissions.
 
-Phase 8 next: waitlist page. The Navbar still needs a mobile menu;
-`/forgot-password`, `/terms`, `/privacy` are linked but not built yet.
+Browsing now reads from Supabase: category list, ranked lists, and product detail use
+`lib/db/catalog.ts` (approved products + live vote/review merge). Seed data is fallback
+only when the DB returns empty. Homepage featured categories use `is_featured` from DB.
+
+Phase 8 next: waitlist page. Hero/rising/trending pages still use seed data.
 Use `npm run dev` to view.
