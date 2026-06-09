@@ -1,6 +1,6 @@
 /**
  * Navigation catalog: parent category groups and sub-list slug mappings.
- * Sub-list slugs (e.g. over-ear-headphones) map to seed product categories for
+ * Sub-list slugs (e.g. over-ear-headphones) map to product categories for
  * ranked-list content until dedicated lists exist in the DB.
  */
 

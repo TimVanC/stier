@@ -16,7 +16,6 @@ import {
 } from "@/lib/db/catalog";
 import { getVoteSnapshot } from "@/lib/db/votes";
 import { getNavList, getNavParent } from "@/lib/nav-catalog";
-import { getCategoryBySlug } from "@/lib/seed-data";
 import { formatCount } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -40,9 +39,7 @@ export async function generateMetadata({
       description: navList.description,
     };
   }
-  const category =
-    (await getCategoryBySlugFromDb(params.slug)) ??
-    getCategoryBySlug(params.slug);
+  const category = await getCategoryBySlugFromDb(params.slug);
   if (!category) return { title: "Category not found" };
   return {
     title: `Best ${category.name} — Ranked by the Community`,
@@ -63,14 +60,10 @@ export default async function RankedCategoryPage({
   const navList = getNavList(params.slug);
   const productCategorySlug = navList?.productCategorySlug ?? params.slug;
   const dbCategory = await getCategoryBySlugFromDb(productCategorySlug);
-  const seedCategory = getCategoryBySlug(productCategorySlug);
-  if (!dbCategory && !seedCategory && !navList) notFound();
+  if (!dbCategory && !navList) notFound();
 
-  const displayName = navList?.name ?? dbCategory?.name ?? seedCategory!.name;
-  const displayDescription =
-    navList?.description ??
-    dbCategory?.description ??
-    seedCategory!.description;
+  const displayName = navList?.name ?? dbCategory!.name;
+  const displayDescription = navList?.description ?? dbCategory!.description;
 
   const products = await loadRankedProductsForCategory(productCategorySlug);
   const productIds = products.map((p) => p.id);
