@@ -145,6 +145,7 @@ Migration: `supabase/migrations/20260610210000_profile_ban.sql` (applied).
 - [x] **`/categories/[slug]/[product-slug]`** — product detail from approved products table (real UUIDs)
 - [x] **Homepage featured** — `FeaturedCategories` reads `is_featured = true` categories from Supabase
 - [x] **Vote bundle fix** — `lib/db/vote-types.ts` keeps client components out of server-only Supabase imports
+- [x] **`generateStaticParams` removed** — category + product detail routes are `force-dynamic`; static param generation was calling Supabase via `cookies()` outside a request scope (500 on first compile)
 
 ---
 
@@ -316,8 +317,10 @@ _Cursor should update this as files are created._
 | components/auth/AuthCard.tsx, LoginForm.tsx, SignupForm.tsx | Auth UI |
 | app/login/page.tsx, app/signup/page.tsx | Auth pages |
 | app/categories/page.tsx | Category list (search/sort browser) |
-| app/categories/[slug]/page.tsx | Ranked category page (SSG + metadata) |
-| app/categories/[slug]/[product-slug]/page.tsx | Product detail (SSG + metadata) |
+| app/categories/[slug]/page.tsx | Ranked category page (dynamic + metadata) |
+| app/categories/[slug]/[product-slug]/page.tsx | Product detail (dynamic + metadata) |
+| lib/db/catalog.ts | Supabase catalog reads with seed fallback |
+| lib/db/vote-types.ts | Client-safe vote types (no server imports) |
 | components/home/* | Hero, FeaturedCategories, RisingThisWeek |
 | components/category/* | CategoryCard, CategoryBrowser |
 | lib/recompute-rankings.ts | Re-sort category products and assign tiers from live vote tallies |
@@ -367,10 +370,10 @@ Auth is done: `middleware.ts` refreshes sessions, `lib/auth.ts` exposes signUp/s
 getSession/getUser, and the login/signup pages are styled with the design system. The repo is
 connected to GitHub (TimVanC/stier) and `main` is up to date.
 
-Phase 2 (Core Browsing) is complete and fully populated from `lib/seed-data.ts`: homepage
-(hero + featured + rising), category list (live search/sort), ranked category page
-(sort/filter + sidebar), and product detail (review summary + reviews + related + mobile
-sticky buy). All 46 routes build; category/product pages are statically generated.
+Phase 2 (Core Browsing) is complete. Category list, ranked lists, product detail, and
+homepage featured categories read from Supabase via `lib/db/catalog.ts` (seed fallback
+when DB is empty). Homepage hero stats, rising section, hero stack cards, nav parent
+grids, and `/for-you` / `/trending` / `/new` still use seed data.
 
 Phase 3 (Voting) is complete: VoteButtons call Supabase server actions with optimistic UI,
 sign-up modal for anonymous users, category-level realtime on ranked lists, and live
@@ -393,9 +396,11 @@ Phase 7 (Admin Panel) is complete: `/admin` dashboard with live stats; submissio
 queue with approve/reject; category CRUD; flagged review moderation; user search with
 ban and clear-votes actions. Ban enforcement blocks votes, reviews, and submissions.
 
-Browsing now reads from Supabase: category list, ranked lists, and product detail use
-`lib/db/catalog.ts` (approved products + live vote/review merge). Seed data is fallback
-only when the DB returns empty. Homepage featured categories use `is_featured` from DB.
+Browsing reads from Supabase: category list, ranked lists, product detail, and homepage
+featured categories. Seed data is fallback only when the DB returns empty. Category and
+product routes are `force-dynamic` (no `generateStaticParams`).
 
-Phase 8 next: waitlist page. Hero/rising/trending pages still use seed data.
-Use `npm run dev` to view.
+**Still on seed data:** hero stats (`getSiteStats`), hero stack cards, rising this week,
+`/for-you`, `/trending`, `/new`, nav parent grid previews (`ParentCategoryGrid`).
+
+Phase 8 next: waitlist page. Use `npm run dev` to view.

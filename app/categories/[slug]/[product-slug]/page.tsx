@@ -16,7 +16,6 @@ import { ProductReviewsBlock } from "@/components/review/ProductReviewsBlock";
 import { Stars } from "@/components/review/Stars";
 import {
   getProductBySlugFromDb,
-  getApprovedProductParams,
   getRelatedProductsFromDb,
   loadRankedProductsForCategory,
 } from "@/lib/db/catalog";
@@ -25,10 +24,6 @@ import { getVoteSnapshot } from "@/lib/db/votes";
 import { formatCount } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
-
-export async function generateStaticParams() {
-  return getApprovedProductParams();
-}
 
 export async function generateMetadata({
   params,

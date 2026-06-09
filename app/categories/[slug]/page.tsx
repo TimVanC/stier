@@ -15,27 +15,11 @@ import {
   loadRankedProductsForCategory,
 } from "@/lib/db/catalog";
 import { getVoteSnapshot } from "@/lib/db/votes";
-import { getNavList, getNavParent, NAV_PARENTS } from "@/lib/nav-catalog";
+import { getNavList, getNavParent } from "@/lib/nav-catalog";
 import { getCategoryBySlug } from "@/lib/seed-data";
 import { formatCount } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
-
-export async function generateStaticParams() {
-  const dbSlugs = await getActiveCategories().then((c) =>
-    c.map((item) => ({ slug: item.slug })),
-  );
-  const parents = NAV_PARENTS.map((p) => ({ slug: p.slug }));
-  const lists = NAV_PARENTS.flatMap((p) =>
-    p.lists.map((l) => ({ slug: l.slug })),
-  );
-  const seen = new Set<string>();
-  return [...dbSlugs, ...parents, ...lists].filter((item) => {
-    if (seen.has(item.slug)) return false;
-    seen.add(item.slug);
-    return true;
-  });
-}
 
 export async function generateMetadata({
   params,
