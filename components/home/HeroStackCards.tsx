@@ -1,7 +1,7 @@
 import Link from "next/link";
 
+import { getHeroStackFromDb } from "@/lib/db/catalog";
 import { cn, formatCount } from "@/lib/utils";
-import { getRankedProducts } from "@/lib/seed-data";
 import type { RankedProduct, Tier } from "@/types";
 
 interface StackRow {
@@ -13,6 +13,7 @@ interface StackRow {
 
 interface StackCardData {
   title: string;
+  href: string;
   totalVotes: number;
   rows: StackRow[];
   className: string;
@@ -28,6 +29,12 @@ const TIER_BADGE: Record<Tier, string> = {
   F: "bg-tier-f text-navy",
 };
 
+const CARD_LAYOUT = [
+  "top-[120px] z-[1] h-[380px] -rotate-1 translate-x-10 opacity-55",
+  "top-[60px] z-[2] h-[380px] translate-x-[22px] opacity-90 hero-stack-middle",
+  "top-0 z-[3] h-[380px] hero-stack-front",
+];
+
 function toStackRow(p: RankedProduct): StackRow {
   return {
     tier: p.tier,
@@ -35,10 +42,6 @@ function toStackRow(p: RankedProduct): StackRow {
     brand: p.brand,
     weeklyVotes: p.weeklyVotes,
   };
-}
-
-function totalVoteCount(products: RankedProduct[]): number {
-  return products.reduce((s, p) => s + p.upvotes + p.downvotes, 0);
 }
 
 function StackCard({ data }: { data: StackCardData }) {
@@ -91,34 +94,23 @@ function StackCard({ data }: { data: StackCardData }) {
   );
 }
 
-/** Stacked tier-list preview cards from the homepage reference mockup. */
-export function HeroStackCards() {
-  const headphones = getRankedProducts("headphones");
-  const slippers = getRankedProducts("slippers");
-  const kettles = getRankedProducts("cast-iron-skillets");
+/** Stacked tier-list preview cards from live category rankings. */
+export async function HeroStackCards() {
+  const stacks = await getHeroStackFromDb();
+  if (stacks.length === 0) return null;
 
-  const front: StackCardData = {
-    title: "Over-ear headphones",
-    totalVotes: totalVoteCount(headphones),
-    rows: headphones.slice(0, 4).map(toStackRow),
-    className: "top-0 z-[3] h-[380px] hero-stack-front",
-  };
+  const ordered = [...stacks].reverse();
+  const rowLimits = [2, 3, 4];
 
-  const middle: StackCardData = {
-    title: "Slippers",
-    totalVotes: totalVoteCount(slippers),
-    rows: slippers.slice(0, 3).map(toStackRow),
-    className:
-      "top-[60px] z-[2] h-[380px] translate-x-[22px] opacity-90 hero-stack-middle",
-  };
+  const cards: StackCardData[] = ordered.map((stack, i) => ({
+    title: stack.title,
+    href: stack.href,
+    totalVotes: stack.totalVotes,
+    rows: stack.products.slice(0, rowLimits[i] ?? 4).map(toStackRow),
+    className: CARD_LAYOUT[i] ?? CARD_LAYOUT[0]!,
+  }));
 
-  const back: StackCardData = {
-    title: "Pour-over kettles",
-    totalVotes: totalVoteCount(kettles),
-    rows: kettles.slice(0, 2).map(toStackRow),
-    className:
-      "top-[120px] z-[1] h-[380px] -rotate-1 translate-x-10 opacity-55",
-  };
+  const front = stacks[stacks.length - 1];
 
   return (
     <div
@@ -126,16 +118,18 @@ export function HeroStackCards() {
       aria-hidden
     >
       <div className="relative h-[520px] [perspective:1200px] max-md:h-[440px]">
-        <StackCard data={back} />
-        <StackCard data={middle} />
-        <StackCard data={front} />
+        {cards.map((card) => (
+          <StackCard key={card.title} data={card} />
+        ))}
       </div>
-      <Link
-        href="/categories/headphones"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-0 focus:top-0 focus:z-50"
-      >
-        View over-ear headphones rankings
-      </Link>
+      {front ? (
+        <Link
+          href={front.href}
+          className="sr-only focus:not-sr-only focus:absolute focus:left-0 focus:top-0 focus:z-50"
+        >
+          View {front.title} rankings
+        </Link>
+      ) : null}
     </div>
   );
 }
