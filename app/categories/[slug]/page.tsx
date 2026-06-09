@@ -8,42 +8,40 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { RankedList } from "@/components/product/RankedList";
 import { ParentCategoryGrid } from "@/components/category/ParentCategoryGrid";
 import { RankMomentumSidebar } from "@/components/category/RankMomentumSidebar";
+import { userVotesForProducts } from "@/lib/db/merge-votes";
 import {
-  mergeVoteSnapshot,
-  userVotesForProducts,
-} from "@/lib/db/merge-votes";
-import { getReviewCounts, mergeReviewCounts } from "@/lib/db/reviews";
-import { dbProductId, getVoteSnapshot } from "@/lib/db/votes";
-import { recomputeRankedProducts } from "@/lib/recompute-rankings";
+  getActiveCategories,
+  getCategoryBySlugFromDb,
+  loadRankedProductsForCategory,
+} from "@/lib/db/catalog";
+import { getVoteSnapshot } from "@/lib/db/votes";
 import { getNavList, getNavParent, NAV_PARENTS } from "@/lib/nav-catalog";
-import {
-  getCategories,
-  getCategoryBySlug,
-  getRankedProducts,
-} from "@/lib/seed-data";
+import { getCategoryBySlug } from "@/lib/seed-data";
 import { formatCount } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export function generateStaticParams() {
-  const seed = getCategories().map((c) => ({ slug: c.slug }));
+export async function generateStaticParams() {
+  const dbSlugs = await getActiveCategories().then((c) =>
+    c.map((item) => ({ slug: item.slug })),
+  );
   const parents = NAV_PARENTS.map((p) => ({ slug: p.slug }));
   const lists = NAV_PARENTS.flatMap((p) =>
     p.lists.map((l) => ({ slug: l.slug })),
   );
   const seen = new Set<string>();
-  return [...seed, ...parents, ...lists].filter((item) => {
+  return [...dbSlugs, ...parents, ...lists].filter((item) => {
     if (seen.has(item.slug)) return false;
     seen.add(item.slug);
     return true;
   });
 }
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
 }: {
   params: { slug: string };
-}): Metadata {
+}): Promise<Metadata> {
   const parent = getNavParent(params.slug);
   if (parent) {
     return {
@@ -58,7 +56,9 @@ export function generateMetadata({
       description: navList.description,
     };
   }
-  const category = getCategoryBySlug(params.slug);
+  const category =
+    (await getCategoryBySlugFromDb(params.slug)) ??
+    getCategoryBySlug(params.slug);
   if (!category) return { title: "Category not found" };
   return {
     title: `Best ${category.name} — Ranked by the Community`,
@@ -78,31 +78,29 @@ export default async function RankedCategoryPage({
 
   const navList = getNavList(params.slug);
   const productCategorySlug = navList?.productCategorySlug ?? params.slug;
+  const dbCategory = await getCategoryBySlugFromDb(productCategorySlug);
   const seedCategory = getCategoryBySlug(productCategorySlug);
-  if (!seedCategory && !navList) notFound();
+  if (!dbCategory && !seedCategory && !navList) notFound();
 
-  const displayName = navList?.name ?? seedCategory!.name;
+  const displayName = navList?.name ?? dbCategory?.name ?? seedCategory!.name;
   const displayDescription =
-    navList?.description ?? seedCategory!.description;
-  const voteCount = seedCategory?.voteCount ?? 0;
-  const productCount = seedCategory?.productCount ?? 0;
-  const topProductName = seedCategory?.topProductName ?? null;
+    navList?.description ??
+    dbCategory?.description ??
+    seedCategory!.description;
 
-  const seedProducts = getRankedProducts(productCategorySlug);
-  const seedWithIds = seedProducts.map((p) => ({
-    ...p,
-    id: dbProductId(productCategorySlug, p.slug),
-  }));
-  const productIds = seedWithIds.map((p) => p.id);
+  const products = await loadRankedProductsForCategory(productCategorySlug);
+  const productIds = products.map((p) => p.id);
   const snapshot = await getVoteSnapshot(productIds);
-  const reviewCounts = await getReviewCounts(productIds);
-  let products = mergeVoteSnapshot(seedWithIds, snapshot);
-  products = recomputeRankedProducts(
-    mergeReviewCounts(products, reviewCounts),
-  );
   const userVotes = userVotesForProducts(products, snapshot);
 
-  const related = getCategories()
+  const voteCount =
+    dbCategory?.voteCount ??
+    products.reduce((sum, p) => sum + p.upvotes + p.downvotes, 0);
+  const productCount = dbCategory?.productCount ?? products.length;
+  const topProductName =
+    dbCategory?.topProductName ?? products[0]?.name ?? null;
+
+  const related = (await getActiveCategories())
     .filter((c) => c.slug !== productCategorySlug)
     .slice(0, 5);
 

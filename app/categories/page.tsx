@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { CategoryBrowser } from "@/components/category/CategoryBrowser";
-import { getCategoriesWithStats } from "@/lib/seed-data";
+import { getCategoriesWithStatsFromDb } from "@/lib/db/catalog";
 
 export const metadata: Metadata = {
   title: "Browse all categories",
@@ -9,12 +9,14 @@ export const metadata: Metadata = {
     "From coffee beans to winter jackets — ranked by people who actually own them.",
 };
 
-export default function CategoriesPage({
+export const dynamic = "force-dynamic";
+
+export default async function CategoriesPage({
   searchParams,
 }: {
   searchParams?: { q?: string };
 }) {
-  const categories = getCategoriesWithStats();
+  const categories = await getCategoriesWithStatsFromDb();
 
   return (
     <div className="container py-10 md:py-14">

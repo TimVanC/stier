@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase-server";
-import { getCategories } from "@/lib/seed-data";
+import { getActiveCategories } from "@/lib/db/catalog";
+import { isUuid } from "@/lib/sanitize";
 import { uuidFromSlug } from "@/lib/db/uuid";
 
 export interface SubmissionCategory {
@@ -21,8 +22,9 @@ export async function getSubmissionCategories(): Promise<SubmissionCategory[]> {
     return data as SubmissionCategory[];
   }
 
-  return getCategories().map((c) => ({
-    id: uuidFromSlug("category", c.slug),
+  const categories = await getActiveCategories();
+  return categories.map((c) => ({
+    id: isUuid(c.id) ? c.id : uuidFromSlug("category", c.slug),
     name: c.name,
     slug: c.slug,
   }));

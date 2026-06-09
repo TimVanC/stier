@@ -14,39 +14,31 @@ import {
 import { ProductVoteProvider } from "@/components/product/ProductVoteProvider";
 import { ProductReviewsBlock } from "@/components/review/ProductReviewsBlock";
 import { Stars } from "@/components/review/Stars";
-import { mergeVoteSnapshot } from "@/lib/db/merge-votes";
 import {
-  getProductReviewBundle,
-  getReviewCounts,
-  mergeReviewCounts,
-} from "@/lib/db/reviews";
-import { dbProductId, getVoteSnapshot } from "@/lib/db/votes";
-import { recomputeRankedProducts } from "@/lib/recompute-rankings";
-import {
-  getCategories,
-  getProductBySlug,
-  getRankedProducts,
-  getRelatedProducts,
-} from "@/lib/seed-data";
+  getProductBySlugFromDb,
+  getApprovedProductParams,
+  getRelatedProductsFromDb,
+  loadRankedProductsForCategory,
+} from "@/lib/db/catalog";
+import { getProductReviewBundle } from "@/lib/db/reviews";
+import { getVoteSnapshot } from "@/lib/db/votes";
 import { formatCount } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export function generateStaticParams() {
-  return getCategories().flatMap((c) =>
-    getRankedProducts(c.slug).map((p) => ({
-      slug: c.slug,
-      "product-slug": p.slug,
-    })),
-  );
+export async function generateStaticParams() {
+  return getApprovedProductParams();
 }
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
 }: {
   params: { slug: string; "product-slug": string };
-}): Metadata {
-  const product = getProductBySlug(params.slug, params["product-slug"]);
+}): Promise<Metadata> {
+  const product = await getProductBySlugFromDb(
+    params.slug,
+    params["product-slug"],
+  );
   if (!product) return { title: "Product not found" };
   return {
     title: `${product.name} by ${product.brand} — ${product.tier} Tier`,
@@ -59,50 +51,33 @@ export default async function ProductDetailPage({
 }: {
   params: { slug: string; "product-slug": string };
 }) {
-  const seedProduct = getProductBySlug(params.slug, params["product-slug"]);
-  if (!seedProduct) notFound();
-
-  const seedCategoryProducts = getRankedProducts(params.slug).map((p) => ({
-    ...p,
-    id: dbProductId(params.slug, p.slug),
-  }));
-  const productId = dbProductId(params.slug, params["product-slug"]);
-  const snapshot = await getVoteSnapshot([productId]);
-  const reviewBundle = await getProductReviewBundle(productId);
-
-  let [product] = mergeVoteSnapshot(
-    [{ ...seedProduct, id: productId }],
-    snapshot,
+  const product = await getProductBySlugFromDb(
+    params.slug,
+    params["product-slug"],
   );
-  product = {
+  if (!product) notFound();
+
+  const categoryProducts = await loadRankedProductsForCategory(params.slug);
+  const snapshot = await getVoteSnapshot([product.id]);
+  const reviewBundle = await getProductReviewBundle(product.id);
+  const userVote = snapshot.userVotes[product.id] ?? null;
+
+  const productWithReviews = {
     ...product,
     reviewCount: reviewBundle.stats.count,
   };
-  product = recomputeRankedProducts([product])[0];
 
-  const userVote = snapshot.userVotes[productId] ?? null;
-
-  const relatedSeed = getRelatedProducts(product.categorySlug, product.slug);
-  const relatedIds = relatedSeed.map((p) =>
-    dbProductId(params.slug, p.slug),
-  );
-  const relatedReviewCounts = await getReviewCounts(relatedIds);
-  const related = recomputeRankedProducts(
-    mergeReviewCounts(
-      relatedSeed.map((p) => ({
-        ...p,
-        id: dbProductId(params.slug, p.slug),
-      })),
-      relatedReviewCounts,
-    ),
+  const related = await getRelatedProductsFromDb(
+    product.categorySlug,
+    product.slug,
   );
 
   return (
     <AuthGateProvider isAuthenticated={snapshot.isAuthenticated}>
       <ProductVoteProvider
-        initialProduct={product}
+        initialProduct={productWithReviews}
         categorySlug={params.slug}
-        seedProducts={seedCategoryProducts}
+        seedProducts={categoryProducts}
       >
         <div className="container py-8 pb-28 md:py-12 lg:pb-12">
           <nav className="mb-5 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
@@ -173,7 +148,7 @@ export default async function ProductDetailPage({
           />
 
           <ProductReviewsBlock
-            productId={productId}
+            productId={product.id}
             initialReviews={reviewBundle.reviews}
             initialStats={reviewBundle.stats}
             userReview={reviewBundle.userReview}
