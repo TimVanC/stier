@@ -1,61 +1,69 @@
-import { createClient } from "@/lib/supabase-server";
+import type { Metadata } from "next";
+import Link from "next/link";
+
+import { AdminNav } from "@/components/admin/AdminNav";
+import { getAdminDashboardStats } from "@/lib/db/admin";
+import { formatCount } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: "Admin dashboard",
+  description: "Stier admin overview.",
+};
 
 export const dynamic = "force-dynamic";
 
-/**
- * Minimal admin dashboard: shows products awaiting moderation. The layout's
- * requireAdmin() already gated this route; the query below is additionally
- * protected by RLS (only admins can read pending products).
- */
 export default async function AdminDashboardPage() {
-  const supabase = await createClient();
-  const { data: pending } = await supabase
-    .from("products")
-    .select("id, name, brand, status, created_at")
-    .eq("status", "pending")
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const stats = await getAdminDashboardStats();
 
-  const rows = pending ?? [];
+  const cards = [
+    {
+      label: "Pending submissions",
+      value: stats.pendingSubmissions,
+      href: "/admin/submissions",
+      highlight: true,
+    },
+    {
+      label: "Flagged reviews",
+      value: stats.flaggedReviews,
+      href: "/admin/reviews",
+      highlight: true,
+    },
+    { label: "Total products", value: stats.totalProducts, href: "/admin/submissions?status=all" },
+    { label: "Categories", value: stats.totalCategories, href: "/admin/categories" },
+    { label: "Users", value: stats.totalUsers, href: "/admin/users" },
+  ];
 
   return (
     <div>
+      <AdminNav />
       <h1 className="font-display text-3xl font-extrabold tracking-tight md:text-4xl">
-        Moderation queue
+        Admin dashboard
       </h1>
       <p className="mt-2 text-muted-foreground">
-        {rows.length} product{rows.length === 1 ? "" : "s"} awaiting review.
+        Overview and quick links to moderation tasks.
       </p>
 
-      <div className="mt-6 overflow-hidden rounded-xl border border-border">
-        {rows.length === 0 ? (
-          <p className="p-6 text-sm text-muted-foreground">
-            Nothing in the queue. All caught up.
-          </p>
-        ) : (
-          <table className="w-full text-left text-sm">
-            <thead className="bg-secondary text-xs uppercase tracking-wider text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3 font-semibold">Product</th>
-                <th className="px-4 py-3 font-semibold">Brand</th>
-                <th className="px-4 py-3 font-semibold">Submitted</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((p) => (
-                <tr key={p.id} className="border-t border-border">
-                  <td className="px-4 py-3 font-medium">{p.name}</td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {p.brand ?? "—"}
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {new Date(p.created_at).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {cards.map((card) => (
+          <Link
+            key={card.label}
+            href={card.href}
+            className={`rounded-xl border p-5 transition hover:border-foreground ${
+              card.highlight
+                ? "border-coral/40 bg-coral/5"
+                : "border-border bg-card"
+            }`}
+          >
+            <p className="text-sm text-muted-foreground">{card.label}</p>
+            <p
+              className={`mt-2 font-display text-3xl font-extrabold ${
+                card.highlight ? "text-coral" : ""
+              }`}
+            >
+              {formatCount(card.value)}
+            </p>
+          </Link>
+        ))}
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase-server";
+import { BANNED_USER_MESSAGE, isUserBanned } from "@/lib/ban";
 import { enforceRateLimit } from "@/lib/rate-limit";
 import { isUuid } from "@/lib/sanitize";
 import type { ActionResult } from "@/lib/actions/types";
@@ -31,6 +32,9 @@ export async function castVote(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "You must be signed in to vote." };
+  if (await isUserBanned(user.id)) {
+    return { ok: false, error: BANNED_USER_MESSAGE };
+  }
 
   const limit = await enforceRateLimit("vote");
   if (!limit.ok) return { ok: false, error: limit.message };

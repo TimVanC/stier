@@ -1,6 +1,6 @@
 # Stier — Build Progress
 
-## Status: Phase 6 — User Dashboard (complete) · Phase 5 Submissions (complete)
+## Status: Phase 7 — Admin Panel (complete) · Phase 6 User Dashboard (complete)
 
 ---
 
@@ -125,17 +125,28 @@ Migration: `supabase/migrations/20260610200000_avatars_bucket.sql` (applied).
 
 ---
 
+## Phase 7 — Admin Panel (Jun 9)
+Migration: `supabase/migrations/20260610210000_profile_ban.sql` (applied).
+
+- [x] **`/admin` dashboard** — real counts: pending submissions, flagged reviews, total products, categories, users; quick links to each section
+- [x] **`/admin/submissions`** — pending submissions oldest first; approve → `approved` (live immediately); reject modal with optional `rejection_reason`
+- [x] **`/admin/categories`** — create, edit, delete (empty only), toggle `is_featured` and `is_active`
+- [x] **`/admin/reviews`** — flagged reviews from `reports` table; keep (dismiss) or remove review actions
+- [x] **`/admin/users`** — searchable user list with activity stats; ban/unban (`is_banned`); clear all votes
+- [x] **Ban enforcement** — banned users blocked from voting, reviewing, and submitting
+
+---
+
 ## In Progress
-- [ ] Phase 7 — Waitlist
+- [ ] Phase 8 — Waitlist
 
 ---
 
 ## Up Next
-1. Waitlist page + email capture (Phase 7)
-2. Admin submission queue approve/reject flow
-3. Replace remaining seed-data reads with Supabase queries
-4. Phase 9 — personalized For You feed
-5. Set up Vercel deployment
+1. Waitlist page + email capture (Phase 8)
+2. Replace remaining seed-data reads with Supabase queries
+3. Phase 9 — personalized For You feed
+4. Set up Vercel deployment
 
 ---
 
@@ -184,7 +195,7 @@ Migration: `supabase/migrations/20260610200000_avatars_bucket.sql` (applied).
 - [x] Success confirmation + link to `/profile/submissions`
 - [x] Duplicate name + brand detection with confirm-to-submit
 - [x] Auth redirect for anonymous users
-- [ ] Admin submission queue approve/reject flow
+- [x] Admin submission queue approve/reject flow
 
 ### Phase 6 — User Dashboard
 - [x] User profile page (public)
@@ -201,11 +212,11 @@ Migration: `supabase/migrations/20260610200000_avatars_bucket.sql` (applied).
 - [ ] Waitlist position counter
 
 ### Phase 8 — Admin
-- [ ] Admin dashboard
-- [ ] Submission queue
-- [ ] Category management
-- [ ] Review moderation
-- [ ] User management
+- [x] Admin dashboard
+- [x] Submission queue
+- [x] Category management
+- [x] Review moderation
+- [x] User management
 
 ### Phase 9 — Polish
 - [ ] **Personalized For You feed** (replace seed suggestions on `/for-you`)
@@ -309,7 +320,10 @@ _Cursor should update this as files are created._
 | lib/db/profile.ts, lists.ts, upvotes.ts, user-reviews.ts | Profile, lists, upvotes, and user-review reads |
 | lib/actions/profile.ts, lists.ts | Profile settings, avatar upload, account delete, saved-list CRUD |
 | lib/auth-guard.ts, lib/supabase-admin.ts | Auth redirect helper + service-role client for account deletion |
-| supabase/migrations/20260610200000_avatars_bucket.sql | Public avatars storage bucket with user-scoped RLS |
+| app/admin/* | Dashboard, submissions, categories, reviews, users |
+| components/admin/* | AdminNav, SubmissionQueue, CategoryManager, FlaggedReviewsManager, UserManager |
+| lib/db/admin.ts, lib/actions/admin.ts, lib/ban.ts | Admin reads, moderation actions, ban checks |
+| supabase/migrations/20260610210000_profile_ban.sql | `is_banned` on profiles + admin profile update policy |
 | lib/actions/reviews.ts, review-read.ts | Submit/update/delete/helpful/report + client refresh |
 | components/review/* | ReviewForm, ReviewCard, ProductReviewsBlock, StarRatingInput, Stars |
 | components/shared/* | TierBars, ImagePlaceholder, EmptyState |
@@ -364,6 +378,10 @@ real stats; dashboard pages for lists, upvotes, submissions, reviews, and settin
 all wired to Supabase with auth redirects. Avatar uploads use the public `avatars` bucket;
 account deletion requires `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`.
 
-Phase 7 next: waitlist page. The Navbar still needs a mobile menu;
+Phase 7 (Admin Panel) is complete: `/admin` dashboard with live stats; submission
+queue with approve/reject; category CRUD; flagged review moderation; user search with
+ban and clear-votes actions. Ban enforcement blocks votes, reviews, and submissions.
+
+Phase 8 next: waitlist page. The Navbar still needs a mobile menu;
 `/forgot-password`, `/terms`, `/privacy` are linked but not built yet.
 Use `npm run dev` to view.
