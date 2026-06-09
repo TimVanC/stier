@@ -6,11 +6,13 @@ import { ChevronRight } from "lucide-react";
 import { AuthGateProvider } from "@/components/auth/AuthGateProvider";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { RankedList } from "@/components/product/RankedList";
+import { ParentCategoryGrid } from "@/components/category/ParentCategoryGrid";
 import {
   mergeVoteSnapshot,
   userVotesForProducts,
 } from "@/lib/db/merge-votes";
 import { dbProductId, getVoteSnapshot } from "@/lib/db/votes";
+import { getNavList, getNavParent, NAV_PARENTS } from "@/lib/nav-catalog";
 import {
   getCategories,
   getCategoryBySlug,
@@ -21,7 +23,17 @@ import { formatCount } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
-  return getCategories().map((c) => ({ slug: c.slug }));
+  const seed = getCategories().map((c) => ({ slug: c.slug }));
+  const parents = NAV_PARENTS.map((p) => ({ slug: p.slug }));
+  const lists = NAV_PARENTS.flatMap((p) =>
+    p.lists.map((l) => ({ slug: l.slug })),
+  );
+  const seen = new Set<string>();
+  return [...seed, ...parents, ...lists].filter((item) => {
+    if (seen.has(item.slug)) return false;
+    seen.add(item.slug);
+    return true;
+  });
 }
 
 export function generateMetadata({
@@ -29,6 +41,20 @@ export function generateMetadata({
 }: {
   params: { slug: string };
 }): Metadata {
+  const parent = getNavParent(params.slug);
+  if (parent) {
+    return {
+      title: `${parent.label} — Community Rankings`,
+      description: parent.description,
+    };
+  }
+  const navList = getNavList(params.slug);
+  if (navList) {
+    return {
+      title: `Best ${navList.name} — Ranked by the Community`,
+      description: navList.description,
+    };
+  }
   const category = getCategoryBySlug(params.slug);
   if (!category) return { title: "Category not found" };
   return {
@@ -42,19 +68,37 @@ export default async function RankedCategoryPage({
 }: {
   params: { slug: string };
 }) {
-  const category = getCategoryBySlug(params.slug);
-  if (!category) notFound();
+  const parent = getNavParent(params.slug);
+  if (parent) {
+    return <ParentCategoryGrid parent={parent} />;
+  }
 
-  const seedProducts = getRankedProducts(category.slug);
+  const navList = getNavList(params.slug);
+  const productCategorySlug = navList?.productCategorySlug ?? params.slug;
+  const seedCategory = getCategoryBySlug(productCategorySlug);
+  if (!seedCategory && !navList) notFound();
+
+  const displayName = navList?.name ?? seedCategory!.name;
+  const displayDescription =
+    navList?.description ?? seedCategory!.description;
+  const voteCount = seedCategory?.voteCount ?? 0;
+  const productCount = seedCategory?.productCount ?? 0;
+  const topProductName = seedCategory?.topProductName ?? null;
+
+  const seedProducts = getRankedProducts(productCategorySlug);
   const productIds = seedProducts.map((p) =>
-    dbProductId(category.slug, p.slug),
+    dbProductId(productCategorySlug, p.slug),
   );
   const snapshot = await getVoteSnapshot(productIds);
-  const products = mergeVoteSnapshot(seedProducts, category.slug, snapshot);
+  const products = mergeVoteSnapshot(
+    seedProducts,
+    productCategorySlug,
+    snapshot,
+  );
   const userVotes = userVotesForProducts(products, snapshot);
 
   const related = getCategories()
-    .filter((c) => c.slug !== category.slug)
+    .filter((c) => c.slug !== productCategorySlug)
     .slice(0, 5);
 
   return (
@@ -70,29 +114,29 @@ export default async function RankedCategoryPage({
           Categories
         </Link>
         <ChevronRight className="size-3.5" />
-        <span className="font-medium text-foreground">{category.name}</span>
+        <span className="font-medium text-foreground">{displayName}</span>
       </nav>
 
       {/* Header */}
       <header className="mb-8">
         <div className="flex items-center gap-3">
           <h1 className="font-display text-3xl font-extrabold tracking-tight md:text-4xl">
-            {category.name}
+            {displayName}
           </h1>
         </div>
         <p className="mt-2 max-w-2xl text-muted-foreground">
-          {category.description}
+          {displayDescription}
         </p>
         <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground">
           <span>
             <span className="font-semibold text-foreground">
-              {formatCount(category.voteCount)}
+              {formatCount(voteCount)}
             </span>{" "}
             votes
           </span>
           <span>
             <span className="font-semibold text-foreground">
-              {category.productCount}
+              {productCount}
             </span>{" "}
             products
           </span>
@@ -142,17 +186,17 @@ export default async function RankedCategoryPage({
             <dl className="mt-3 flex flex-col gap-2 text-sm">
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Products</dt>
-                <dd className="font-semibold">{category.productCount}</dd>
+                <dd className="font-semibold">{productCount}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Total votes</dt>
                 <dd className="font-semibold">
-                  {formatCount(category.voteCount)}
+                  {formatCount(voteCount)}
                 </dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Top pick</dt>
-                <dd className="font-semibold">{category.topProductName}</dd>
+                <dd className="font-semibold">{topProductName ?? "—"}</dd>
               </div>
             </dl>
           </div>
