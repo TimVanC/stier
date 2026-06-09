@@ -1,29 +1,32 @@
-"use client";
-
 import Link from "next/link";
-import { useMemo, useState } from "react";
 
 import { CategoryCard } from "@/components/category/CategoryCard";
 import { ClimbingProductCard } from "@/components/home/ClimbingProductCard";
-import { cn } from "@/lib/utils";
-import { getCategoriesWithStats, getRisingProducts } from "@/lib/seed-data";
+import { TrendingPeriodToggle } from "@/components/discovery/TrendingPeriodToggle";
+import {
+  getTrendingCategoriesFromDb,
+  getTrendingProductsFromDb,
+} from "@/lib/db/catalog";
 
-type Period = "week" | "month";
+export const metadata = {
+  title: "Trending",
+  description: "Lists and products gaining the most traction right now.",
+};
 
-export default function TrendingPage() {
-  const [period, setPeriod] = useState<Period>("week");
+export default async function TrendingPage({
+  searchParams,
+}: {
+  searchParams: { period?: string };
+}) {
+  const period = searchParams.period === "month" ? "month" : "week";
+  const days = period === "month" ? 30 : 7;
+  const listLimit = period === "month" ? 8 : 6;
+  const productLimit = period === "month" ? 10 : 8;
 
-  const lists = useMemo(() => {
-    const sorted = getCategoriesWithStats().slice().sort((a, b) => b.voteCount - a.voteCount);
-    return period === "week" ? sorted.slice(0, 6) : sorted.slice(0, 8);
-  }, [period]);
-
-  const products = useMemo(() => {
-    const rising = getRisingProducts(period === "week" ? 8 : 10);
-    return period === "month"
-      ? [...rising].sort((a, b) => b.upvotes + b.downvotes - (a.upvotes + a.downvotes))
-      : rising;
-  }, [period]);
+  const [lists, products] = await Promise.all([
+    getTrendingCategoriesFromDb(listLimit, days),
+    getTrendingProductsFromDb(productLimit, days),
+  ]);
 
   return (
     <div className="container py-10 md:py-14">
@@ -36,51 +39,47 @@ export default function TrendingPage() {
             Lists and products gaining the most traction right now.
           </p>
         </div>
-        <div className="inline-flex rounded-full border border-border bg-card p-1">
-          {(["week", "month"] as const).map((p) => (
-            <button
-              key={p}
-              type="button"
-              onClick={() => setPeriod(p)}
-              className={cn(
-                "h-9 rounded-full px-4 text-sm font-semibold capitalize transition",
-                period === p
-                  ? "bg-navy text-white"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              This {p}
-            </button>
-          ))}
-        </div>
+        <TrendingPeriodToggle period={period} />
       </header>
 
       <section>
         <h2 className="mb-4 font-display text-xl font-bold tracking-tight">
           Trending lists
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {lists.map((category) => (
-            <CategoryCard key={category.id} category={category} />
-          ))}
-        </div>
+        {lists.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No category activity in this period yet.
+          </p>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {lists.map((category) => (
+              <CategoryCard key={category.id} category={category} />
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="mt-12">
         <h2 className="mb-5 font-display text-xl font-bold tracking-tight">
           Trending products
         </h2>
-        <div className="fade-right -mx-6 px-6">
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-            {products.map((product, i) => (
-              <ClimbingProductCard
-                key={product.id}
-                product={product}
-                displayRank={i + 1}
-              />
-            ))}
+        {products.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No product votes in this period yet.
+          </p>
+        ) : (
+          <div className="fade-right -mx-6 px-6">
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+              {products.map((product, i) => (
+                <ClimbingProductCard
+                  key={product.id}
+                  product={product}
+                  displayRank={i + 1}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </section>
 
       <p className="mt-8 text-center text-sm text-muted-foreground">
