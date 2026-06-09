@@ -8,7 +8,7 @@ import { fetchProductVoteTally } from "@/lib/actions/vote-read";
 import { castVote, removeVote } from "@/lib/actions/votes";
 import { createClient } from "@/lib/supabase";
 import { cn, formatCount } from "@/lib/utils";
-import type { ProductVoteTally, UserVote } from "@/lib/db/votes";
+import type { ProductVoteTally, UserVote } from "@/lib/db/vote-types";
 
 export interface VoteTallyState extends ProductVoteTally {
   userVote: UserVote;

@@ -89,16 +89,14 @@ export default async function RankedCategoryPage({
   const topProductName = seedCategory?.topProductName ?? null;
 
   const seedProducts = getRankedProducts(productCategorySlug);
-  const productIds = seedProducts.map((p) =>
-    dbProductId(productCategorySlug, p.slug),
-  );
+  const seedWithIds = seedProducts.map((p) => ({
+    ...p,
+    id: dbProductId(productCategorySlug, p.slug),
+  }));
+  const productIds = seedWithIds.map((p) => p.id);
   const snapshot = await getVoteSnapshot(productIds);
   const reviewCounts = await getReviewCounts(productIds);
-  let products = mergeVoteSnapshot(
-    seedProducts,
-    productCategorySlug,
-    snapshot,
-  );
+  let products = mergeVoteSnapshot(seedWithIds, snapshot);
   products = recomputeRankedProducts(
     mergeReviewCounts(products, reviewCounts),
   );

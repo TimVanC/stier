@@ -15,7 +15,7 @@ import { recomputeRankedProducts } from "@/lib/recompute-rankings";
 import { createClient } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import type { RankedProduct, Tier } from "@/types";
-import type { UserVote } from "@/lib/db/votes";
+import type { UserVote } from "@/lib/db/vote-types";
 
 type SortKey = "top" | "rising" | "reviewed" | "newest";
 type TierFilter = "all" | Tier;
@@ -75,10 +75,10 @@ export function RankedList({
   const refreshFromServer = useCallback(async () => {
     if (productIds.length === 0) return;
     const snapshot = await fetchVoteSnapshot(productIds);
-    const merged = mergeVoteSnapshot(seedBase, categorySlug, snapshot);
+    const merged = mergeVoteSnapshot(seedBase, snapshot);
     setLiveProducts(merged);
     setUserVotes(userVotesForProducts(merged, snapshot));
-  }, [productIds, seedBase, categorySlug]);
+  }, [productIds, seedBase]);
 
   useEffect(() => {
     if (productIds.length === 0) return;

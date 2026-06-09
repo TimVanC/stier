@@ -12,7 +12,7 @@ import { TierBadge } from "@/components/product/TierBadge";
 import { VoteButtons, type VoteTallyState } from "@/components/product/VoteButtons";
 import { cn, formatCount } from "@/lib/utils";
 import type { RankedProduct } from "@/types";
-import type { UserVote } from "@/lib/db/votes";
+import type { UserVote } from "@/lib/db/vote-types";
 
 /** Horizontal ranked-list row used on the category page. */
 export function ProductRow({

@@ -62,12 +62,18 @@ export default async function ProductDetailPage({
   const seedProduct = getProductBySlug(params.slug, params["product-slug"]);
   if (!seedProduct) notFound();
 
-  const seedCategoryProducts = getRankedProducts(params.slug);
+  const seedCategoryProducts = getRankedProducts(params.slug).map((p) => ({
+    ...p,
+    id: dbProductId(params.slug, p.slug),
+  }));
   const productId = dbProductId(params.slug, params["product-slug"]);
   const snapshot = await getVoteSnapshot([productId]);
   const reviewBundle = await getProductReviewBundle(productId);
 
-  let [product] = mergeVoteSnapshot([seedProduct], params.slug, snapshot);
+  let [product] = mergeVoteSnapshot(
+    [{ ...seedProduct, id: productId }],
+    snapshot,
+  );
   product = {
     ...product,
     reviewCount: reviewBundle.stats.count,

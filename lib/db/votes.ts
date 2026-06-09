@@ -1,25 +1,15 @@
 import { createClient } from "@/lib/supabase-server";
 import { uuidFromSlug } from "@/lib/db/uuid";
+import {
+  emptyVoteTally,
+  type ProductVoteTally,
+  type UserVote,
+  type VoteSnapshot,
+} from "@/lib/db/vote-types";
 
-export type UserVote = "upvote" | "downvote" | null;
+export type { ProductVoteTally, UserVote, VoteSnapshot } from "@/lib/db/vote-types";
 
-export interface ProductVoteTally {
-  upvotes: number;
-  downvotes: number;
-  netVotes: number;
-}
-
-export interface VoteSnapshot {
-  tallies: Record<string, ProductVoteTally>;
-  userVotes: Record<string, UserVote>;
-  isAuthenticated: boolean;
-}
-
-function emptyTally(): ProductVoteTally {
-  return { upvotes: 0, downvotes: 0, netVotes: 0 };
-}
-
-/** Resolve the stable DB uuid for a product slug within a category. */
+/** Resolve the stable DB uuid for a product slug within a category (server only). */
 export function dbProductId(categorySlug: string, productSlug: string): string {
   return uuidFromSlug("product", `${categorySlug}/${productSlug}`);
 }
@@ -32,7 +22,7 @@ export async function getVoteSnapshot(
   const userVotes: Record<string, UserVote> = {};
 
   for (const id of productIds) {
-    tallies[id] = emptyTally();
+    tallies[id] = emptyVoteTally();
     userVotes[id] = null;
   }
 

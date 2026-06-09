@@ -1,20 +1,16 @@
-import { dbProductId } from "@/lib/db/votes";
 import { recomputeRankedProducts } from "@/lib/recompute-rankings";
 import type { RankedProduct } from "@/types";
-import type { VoteSnapshot } from "@/lib/db/votes";
+import type { VoteSnapshot } from "@/lib/db/vote-types";
 
-/** Attach stable Supabase product ids and live vote tallies to seed-ranked rows. */
+/** Attach live vote tallies to ranked rows (products must already have stable ids). */
 export function mergeVoteSnapshot(
   products: RankedProduct[],
-  categorySlug: string,
   snapshot: VoteSnapshot,
 ): RankedProduct[] {
   const merged = products.map((product) => {
-    const id = dbProductId(categorySlug, product.slug);
-    const tally = snapshot.tallies[id];
+    const tally = snapshot.tallies[product.id];
     return {
       ...product,
-      id,
       upvotes: tally?.upvotes ?? 0,
       downvotes: tally?.downvotes ?? 0,
       netVotes: tally?.netVotes ?? 0,

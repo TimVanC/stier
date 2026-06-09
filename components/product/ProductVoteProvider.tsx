@@ -12,7 +12,6 @@ import {
 import type { VoteTallyState } from "@/components/product/VoteButtons";
 import { fetchVoteSnapshot } from "@/lib/actions/vote-read";
 import { mergeVoteSnapshot } from "@/lib/db/merge-votes";
-import { dbProductId } from "@/lib/db/votes";
 import { recomputeRankedProducts } from "@/lib/recompute-rankings";
 import type { RankedProduct, Tier } from "@/types";
 
@@ -40,36 +39,32 @@ export function ProductVoteProvider({
   const [live, setLive] = useState(initialProduct);
 
   const refreshRankings = useCallback(async () => {
-    const productIds = seedProducts.map((p) =>
-      dbProductId(categorySlug, p.slug),
-    );
+    const productIds = seedProducts.map((p) => p.id);
     const snapshot = await fetchVoteSnapshot(productIds);
-    const merged = mergeVoteSnapshot(seedProducts, categorySlug, snapshot);
+    const merged = mergeVoteSnapshot(seedProducts, snapshot);
     const current = merged.find((p) => p.slug === initialProduct.slug);
     if (current) setLive(current);
-  }, [seedProducts, categorySlug, initialProduct.slug]);
+  }, [seedProducts, initialProduct.slug]);
 
   const onTallyChange = useCallback(
     (tally: VoteTallyState) => {
       const categoryRows = seedProducts.map((p) => {
-        const id = dbProductId(categorySlug, p.slug);
         if (p.slug === initialProduct.slug) {
           return {
             ...p,
-            id,
             upvotes: tally.upvotes,
             downvotes: tally.downvotes,
             netVotes: tally.netVotes,
           };
         }
-        return { ...p, id };
+        return p;
       });
       const recomputed = recomputeRankedProducts(categoryRows);
       const current = recomputed.find((p) => p.slug === initialProduct.slug);
       if (current) setLive(current);
       void refreshRankings();
     },
-    [seedProducts, categorySlug, initialProduct.slug, refreshRankings],
+    [seedProducts, initialProduct.slug, refreshRankings],
   );
 
   const value = useMemo(

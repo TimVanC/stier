@@ -6,7 +6,7 @@ import { useProductVoteCount } from "@/components/product/ProductVoteProvider";
 import { VoteButtons } from "@/components/product/VoteButtons";
 import { TierBadge } from "@/components/product/TierBadge";
 import { formatCount } from "@/lib/utils";
-import type { UserVote } from "@/lib/db/votes";
+import type { UserVote } from "@/lib/db/vote-types";
 
 export function ProductDetailRankBadge() {
   const { tier, rank, categoryName } = useProductVoteCount();
