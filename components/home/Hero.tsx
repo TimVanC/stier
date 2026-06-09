@@ -1,13 +1,10 @@
 import Link from "next/link";
 import { ArrowRight, Search } from "lucide-react";
 
-import { TierBadge } from "@/components/product/TierBadge";
 import { TierBars } from "@/components/shared/TierBars";
+import { HeroStackCards } from "@/components/home/HeroStackCards";
 import { formatCount } from "@/lib/utils";
-import {
-  getRankedProducts,
-  getSiteStats,
-} from "@/lib/seed-data";
+import { getSiteStats } from "@/lib/seed-data";
 
 const POPULAR = [
   { label: "Coffee Beans", slug: "coffee-beans", tier: "bg-tier-s" },
@@ -18,7 +15,6 @@ const POPULAR = [
 
 export function Hero() {
   const stats = getSiteStats();
-  const board = getRankedProducts("headphones").slice(0, 4);
 
   return (
     <section className="relative overflow-hidden">
@@ -84,46 +80,8 @@ export function Hero() {
             </div>
           </div>
 
-          {/* Right: floating live tier list card */}
-          <div className="relative mx-auto w-full max-w-md lg:ml-auto">
-            <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-[0_24px_60px_-28px_rgba(26,26,46,0.28)]">
-              <div className="flex items-center justify-between border-b border-border px-5 py-4">
-                <span className="font-display text-base font-extrabold tracking-tight">
-                  Over-ear headphones
-                </span>
-                <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  {formatCount(
-                    board.reduce((s, p) => s + p.upvotes + p.downvotes, 0),
-                  )}{" "}
-                  votes
-                </span>
-              </div>
-              <ul>
-                {board.map((p) => (
-                  <li
-                    key={p.id}
-                    className="grid grid-cols-[auto_1fr_auto] items-center gap-3 border-b border-secondary px-5 py-3 last:border-0"
-                  >
-                    <TierBadge tier={p.tier} size="sm" />
-                    <span>
-                      <span className="block text-sm font-semibold leading-tight">
-                        {p.name}
-                      </span>
-                      <span className="block text-xs text-muted-foreground">
-                        {p.brand}
-                      </span>
-                    </span>
-                    <span className="text-right font-display text-sm font-bold text-emerald-600">
-                      +{formatCount(p.weeklyVotes)}
-                      <span className="block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                        this wk
-                      </span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+          {/* Right: stacked tier-list preview cards */}
+          <HeroStackCards />
         </div>
 
         {/* Stats strip */}

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { ProductCard } from "@/components/product/ProductCard";
+import { ClimbingProductCard } from "@/components/home/ClimbingProductCard";
 import { getRisingProducts } from "@/lib/seed-data";
 
 export function RisingThisWeek() {
@@ -33,8 +33,12 @@ export function RisingThisWeek() {
 
       <div className="fade-right">
         <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4 scrollbar-hide md:px-[max(1.5rem,calc((100vw-1320px)/2+1.5rem))]">
-          {rising.map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {rising.map((product, i) => (
+            <ClimbingProductCard
+              key={product.id}
+              product={product}
+              displayRank={i + 1}
+            />
           ))}
         </div>
       </div>
