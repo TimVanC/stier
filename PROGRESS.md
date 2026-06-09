@@ -20,7 +20,20 @@
 - [x] Login + signup pages (Stier design system, tier-bar accent)
 - [x] Phase 2 browsing: homepage, category list, ranked category, product detail
 - [x] Seed data module (`lib/seed-data.ts`) + ranking/tier logic (`lib/ranking.ts`)
-- [x] `npm install`, typecheck, lint, and production build all passing (46 routes)
+- [x] `npm install`, typecheck, lint, and production build all passing (50 routes)
+
+---
+
+## Design & Tier-Logic Pass (Jun 9)
+- [x] Removed all emojis sitewide (category `icon` field dropped from type + seed data; all render sites cleaned)
+- [x] Tier badges are rounded squares with exact colors — S `#ff7f81`, A `#ffb347`, B `#ffd700`, C `#90ee90`, D `#87ceeb`, F `#d3d3d3`
+  - Pinned tier shapes to fixed px radii (`rounded-[7px]` badges, `rounded-[3px]` dots) because the Tailwind `--radius` override made `rounded-sm`/`rounded-md` read as circles
+- [x] **Relative per-category tiers** in `lib/ranking.ts`: F = net-negative; S/A/B/C/D by score percentile within the category (S top 10%, A 11–25%, B 26–50%, C 51–75%, D bottom 25%)
+- [x] **S+ tier** added (`Tier` type, `assignTier`, `TierBadge`, tier legend): S tier **and** ≥30% of the category's votes — coral bg, white label, gold ring. Kept rare by adding a 4th product to each 3-product category and tuning vote shares so only Headphones/HD 6XX qualifies
+- [x] Homepage: new headline "The reviews are rigged. Start with the best.", exactly 4 popular chips, vertically-stacked centered stats, featured = big card + 4 (no orphan), tier legend with S+, rebuilt "Climbing the rankings" cards to match the reference (oversized rank + change, tier pill, body/foot)
+- [x] Navbar secondary row: hover dropdown menus with placeholder subcategories (Audio, Home & Kitchen, Outdoors, Apparel, Tools, Tech)
+- [x] `/categories` reworked: title "Browse all categories", dynamic subtitle "All [filter] lists", top-4 featured, filter chips + search, rounded-square tier badges
+- [x] Ranked-list + product-detail pages: universal fixes applied (no emoji, square badges, correct colors, S+ support)
 
 ---
 

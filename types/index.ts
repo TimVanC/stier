@@ -1,12 +1,10 @@
-export type Tier = "S" | "A" | "B" | "C" | "D" | "F";
+export type Tier = "S+" | "S" | "A" | "B" | "C" | "D" | "F";
 
 export interface Category {
   id: string;
   name: string;
   slug: string;
   description: string;
-  /** Short emoji/icon used in placeholder cards. */
-  icon: string;
   isFeatured: boolean;
   isActive: boolean;
   createdDaysAgo: number;

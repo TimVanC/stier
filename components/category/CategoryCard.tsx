@@ -13,14 +13,9 @@ export function CategoryCard({ category }: { category: CategoryWithStats }) {
       className="group relative flex min-h-[180px] flex-col justify-between overflow-hidden rounded-xl border border-border bg-card p-5 transition hover:-translate-y-0.5 hover:border-foreground hover:shadow-md"
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <span className="text-2xl" aria-hidden>
-            {category.icon}
-          </span>
-          <span className="font-display text-xl font-extrabold leading-tight tracking-tight">
-            {category.name}
-          </span>
-        </div>
+        <span className="font-display text-xl font-extrabold leading-tight tracking-tight">
+          {category.name}
+        </span>
         <span className="shrink-0 rounded-full bg-secondary px-2.5 py-1 text-xs text-muted-foreground">
           {category.productCount} ranked
         </span>

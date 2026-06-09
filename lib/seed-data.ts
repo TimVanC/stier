@@ -20,7 +20,6 @@ const RAW_CATEGORIES: Category[] = [
     slug: "coffee-beans",
     description:
       "Single-origin, blends, light to dark — ranked by people who grind every morning.",
-    icon: "☕",
     isFeatured: true,
     isActive: true,
     createdDaysAgo: 210,
@@ -31,7 +30,6 @@ const RAW_CATEGORIES: Category[] = [
     slug: "headphones",
     description:
       "Over-ear, open-back, and studio cans worth the money. No marketing fluff.",
-    icon: "🎧",
     isFeatured: true,
     isActive: true,
     createdDaysAgo: 240,
@@ -42,7 +40,6 @@ const RAW_CATEGORIES: Category[] = [
     slug: "winter-jackets",
     description:
       "Insulated layers tested in real cold by people who live in it.",
-    icon: "🧥",
     isFeatured: true,
     isActive: true,
     createdDaysAgo: 150,
@@ -52,7 +49,6 @@ const RAW_CATEGORIES: Category[] = [
     name: "Running Shoes",
     slug: "running-shoes",
     description: "Daily trainers to race-day super shoes, ranked by milage.",
-    icon: "👟",
     isFeatured: false,
     isActive: true,
     createdDaysAgo: 180,
@@ -62,7 +58,6 @@ const RAW_CATEGORIES: Category[] = [
     name: "Slippers",
     slug: "slippers",
     description: "Indoor comfort that lasts more than one winter.",
-    icon: "🥿",
     isFeatured: false,
     isActive: true,
     createdDaysAgo: 60,
@@ -72,7 +67,6 @@ const RAW_CATEGORIES: Category[] = [
     name: "Cast Iron Skillets",
     slug: "cast-iron-skillets",
     description: "Buy-it-for-life cookware, seasoned by decades of opinions.",
-    icon: "🍳",
     isFeatured: false,
     isActive: true,
     createdDaysAgo: 95,
@@ -82,7 +76,6 @@ const RAW_CATEGORIES: Category[] = [
     name: "Mechanical Keyboards",
     slug: "mechanical-keyboards",
     description: "Boards and switches that survive the daily pound.",
-    icon: "⌨️",
     isFeatured: false,
     isActive: true,
     createdDaysAgo: 30,
@@ -92,7 +85,6 @@ const RAW_CATEGORIES: Category[] = [
     name: "Backpacks",
     slug: "backpacks",
     description: "Everyday carry and travel packs ranked by what survives.",
-    icon: "🎒",
     isFeatured: false,
     isActive: true,
     createdDaysAgo: 45,
@@ -302,7 +294,7 @@ const RAW_PRODUCTS: Record<string, RawProduct[]> = {
       description:
         "Lightweight synthetic belay jacket that stays warm when wet. An alpine favorite.",
       price: "$329",
-      upvotes: 6700,
+      upvotes: 5800,
       downvotes: 240,
       reviewCount: 240,
       rankChange: -1,
@@ -319,7 +311,7 @@ const RAW_PRODUCTS: Record<string, RawProduct[]> = {
       description:
         "Premium down warmth at a featherweight. Pricey, but the gold standard for cold-dry days.",
       price: "$400",
-      upvotes: 5900,
+      upvotes: 5500,
       downvotes: 410,
       reviewCount: 180,
       rankChange: 1,
@@ -442,7 +434,7 @@ const RAW_PRODUCTS: Record<string, RawProduct[]> = {
       description:
         "Felted wool that breathes and lasts. The rubber sole makes them quick-trip-to-the-mailbox ready.",
       price: "$130",
-      upvotes: 8400,
+      upvotes: 3200,
       downvotes: 210,
       reviewCount: 200,
       rankChange: 2,
@@ -459,7 +451,7 @@ const RAW_PRODUCTS: Record<string, RawProduct[]> = {
       description:
         "Cork footbed comfort that molds to your foot. Not fuzzy, but unmatched support.",
       price: "$110",
-      upvotes: 4200,
+      upvotes: 3000,
       downvotes: 260,
       reviewCount: 150,
       rankChange: 0,
@@ -485,6 +477,23 @@ const RAW_PRODUCTS: Record<string, RawProduct[]> = {
       imageLabel: "Slide slipper",
       affiliateUrl: "https://example.com/buy/suicoke",
     },
+    {
+      id: "p-llbean-moc",
+      slug: "llbean-wicked-good-moccasin",
+      name: "Wicked Good Moccasin",
+      brand: "L.L.Bean",
+      description:
+        "Shearling-lined moccasins that feel like a hug. Warm, cushioned, and a perennial value pick.",
+      price: "$89",
+      upvotes: 2400,
+      downvotes: 300,
+      reviewCount: 50,
+      rankChange: -1,
+      weeklyVotes: 90,
+      createdDaysAgo: 75,
+      imageLabel: "Shearling moccasin",
+      affiliateUrl: "https://example.com/buy/llbean-moccasin",
+    },
   ],
   "cast-iron-skillets": [
     {
@@ -495,7 +504,7 @@ const RAW_PRODUCTS: Record<string, RawProduct[]> = {
       description:
         "Lightweight, machine-smooth cast iron with a naturally slick finish out of the box.",
       price: "$165",
-      upvotes: 5200,
+      upvotes: 3400,
       downvotes: 190,
       reviewCount: 200,
       rankChange: 6,
@@ -512,7 +521,7 @@ const RAW_PRODUCTS: Record<string, RawProduct[]> = {
       description:
         "The unkillable budget pick. Rougher finish, but seasons up beautifully and costs a fraction.",
       price: "$25",
-      upvotes: 7600,
+      upvotes: 2900,
       downvotes: 520,
       reviewCount: 150,
       rankChange: 0,
@@ -529,7 +538,7 @@ const RAW_PRODUCTS: Record<string, RawProduct[]> = {
       description:
         "Hand-finished, polished interior with heirloom looks. The splurge that earns compliments.",
       price: "$200",
-      upvotes: 3400,
+      upvotes: 2600,
       downvotes: 230,
       reviewCount: 90,
       rankChange: 1,
@@ -537,6 +546,23 @@ const RAW_PRODUCTS: Record<string, RawProduct[]> = {
       createdDaysAgo: 110,
       imageLabel: "Cast iron skillet · 10 in",
       affiliateUrl: "https://example.com/buy/smithey",
+    },
+    {
+      id: "p-stargazer",
+      slug: "stargazer-10-5-skillet",
+      name: '10.5" Skillet',
+      brand: "Stargazer",
+      description:
+        "Polished cooking surface, ergonomic handle, and pour spouts. A modern take that cooks like a dream.",
+      price: "$135",
+      upvotes: 2200,
+      downvotes: 180,
+      reviewCount: 50,
+      rankChange: 2,
+      weeklyVotes: 260,
+      createdDaysAgo: 70,
+      imageLabel: "Cast iron skillet · 10 in",
+      affiliateUrl: "https://example.com/buy/stargazer",
     },
   ],
   "mechanical-keyboards": [
@@ -548,7 +574,7 @@ const RAW_PRODUCTS: Record<string, RawProduct[]> = {
       description:
         "Gasket-mounted aluminum board with wireless, hot-swap switches, and a thocky sound out of the box.",
       price: "$199",
-      upvotes: 4200,
+      upvotes: 2200,
       downvotes: 180,
       reviewCount: 200,
       rankChange: 5,
@@ -591,6 +617,23 @@ const RAW_PRODUCTS: Record<string, RawProduct[]> = {
       imageLabel: "Mechanical keyboard",
       affiliateUrl: "https://example.com/buy/sonnet",
     },
+    {
+      id: "p-keychron-v1",
+      slug: "keychron-v1",
+      name: "V1",
+      brand: "Keychron",
+      description:
+        "Wired budget sibling of the Q-series. Gasket mount and hot-swap at a fraction of the price.",
+      price: "$84",
+      upvotes: 2000,
+      downvotes: 150,
+      reviewCount: 50,
+      rankChange: 3,
+      weeklyVotes: 320,
+      createdDaysAgo: 35,
+      imageLabel: "Mechanical keyboard",
+      affiliateUrl: "https://example.com/buy/keychron-v1",
+    },
   ],
   backpacks: [
     {
@@ -601,7 +644,7 @@ const RAW_PRODUCTS: Record<string, RawProduct[]> = {
       description:
         "Clamshell carry-on backpack with smart organization and bombproof Cordura.",
       price: "$249",
-      upvotes: 3800,
+      upvotes: 3300,
       downvotes: 160,
       reviewCount: 200,
       rankChange: 3,
@@ -635,7 +678,7 @@ const RAW_PRODUCTS: Record<string, RawProduct[]> = {
       description:
         "Camera-friendly EDC pack with clever FlexFold dividers and weatherproof build.",
       price: "$280",
-      upvotes: 3200,
+      upvotes: 3000,
       downvotes: 240,
       reviewCount: 150,
       rankChange: 1,
@@ -643,6 +686,23 @@ const RAW_PRODUCTS: Record<string, RawProduct[]> = {
       createdDaysAgo: 90,
       imageLabel: "EDC backpack",
       affiliateUrl: "https://example.com/buy/everyday-v2",
+    },
+    {
+      id: "p-tombihn-synapse",
+      slug: "tom-bihn-synapse-25",
+      name: "Synapse 25",
+      brand: "Tom Bihn",
+      description:
+        "Cult-favorite EDC pack with deep pockets and bombproof stitching. Made in Seattle, built to outlast you.",
+      price: "$230",
+      upvotes: 2400,
+      downvotes: 180,
+      reviewCount: 50,
+      rankChange: 1,
+      weeklyVotes: 210,
+      createdDaysAgo: 65,
+      imageLabel: "EDC backpack",
+      affiliateUrl: "https://example.com/buy/tom-bihn-synapse",
     },
   ],
 };
@@ -666,17 +726,33 @@ function enrich(raw: RawProduct, categorySlug: string): Omit<RankedProduct, "ran
   };
 }
 
-/** All products in a category, ranked (1..n) with tiers assigned. */
+/** All products in a category, ranked (1..n) with relative tiers assigned. */
 export function getRankedProducts(categorySlug: string): RankedProduct[] {
   const raws = RAW_PRODUCTS[categorySlug] ?? [];
   const enriched = raws
     .map((r) => enrich(r, categorySlug))
     .sort((a, b) => b.score - a.score);
-  const topScore = enriched[0]?.score ?? 0;
+  if (enriched.length === 0) return [];
+
+  const scores = enriched.map((p) => p.score);
+  const maxScore = Math.max(...scores);
+  const minScore = Math.min(...scores);
+  const categoryVotes = enriched.reduce(
+    (sum, p) => sum + p.upvotes + p.downvotes,
+    0,
+  );
+
   return enriched.map((p, i) => ({
     ...p,
     rank: i + 1,
-    tier: assignTier(p.score, topScore),
+    tier: assignTier({
+      score: p.score,
+      minScore,
+      maxScore,
+      netVotes: p.netVotes,
+      productVotes: p.upvotes + p.downvotes,
+      categoryVotes,
+    }),
   }));
 }
 

@@ -11,7 +11,8 @@ import { formatCount } from "@/lib/utils";
 import type { Tier } from "@/types";
 
 const TIER_LEGEND: { tier: Tier; label: string; note: string }[] = [
-  { tier: "S", label: "Best in class", note: "Top 5% by community vote" },
+  { tier: "S+", label: "Undisputed community pick", note: "Dominates its category" },
+  { tier: "S", label: "Best in class", note: "Top of the category" },
   { tier: "A", label: "Excellent", note: "Beats most alternatives" },
   { tier: "B", label: "Solid pick", note: "You won't regret it" },
   { tier: "C", label: "Niche / Acceptable", note: "Only if it fits" },
@@ -20,7 +21,7 @@ const TIER_LEGEND: { tier: Tier; label: string; note: string }[] = [
 export function FeaturedCategories() {
   const all = getCategoriesWithStats();
   const big = all.find((c) => c.slug === "coffee-beans") ?? all[0];
-  const rest = all.filter((c) => c.slug !== big.slug).slice(0, 5);
+  const rest = all.filter((c) => c.slug !== big.slug).slice(0, 4);
   const bigBoard = getRankedProducts(big.slug).slice(0, 4);
 
   return (
@@ -28,7 +29,7 @@ export function FeaturedCategories() {
       <div className="mb-8 flex items-end justify-between gap-5">
         <div>
           <div className="mb-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            <span className="size-2 rounded-sm bg-tier-s" />
+            <span className="size-2 rounded-[3px] bg-tier-s" />
             Featured categories
           </div>
           <h2 className="font-display text-3xl font-extrabold tracking-tight md:text-4xl">

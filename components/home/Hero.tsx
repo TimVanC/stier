@@ -14,7 +14,6 @@ const POPULAR = [
   { label: "Headphones", slug: "headphones", tier: "bg-tier-a" },
   { label: "Winter Jackets", slug: "winter-jackets", tier: "bg-tier-b" },
   { label: "Running Shoes", slug: "running-shoes", tier: "bg-tier-c" },
-  { label: "Slippers", slug: "slippers", tier: "bg-coral" },
 ];
 
 export function Hero() {
@@ -33,17 +32,18 @@ export function Hero() {
             </div>
 
             <h1 className="font-display text-[clamp(2.5rem,6vw,4.75rem)] font-extrabold leading-[0.96] tracking-tight text-foreground">
-              Stop scrolling Reddit.
+              The reviews are rigged.
               <br />
               Start with the <span className="text-coral">best.</span>
             </h1>
 
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              Honest, community-voted tier lists for the stuff worth owning.{" "}
+              Fake five-star reviews, paid &ldquo;best of&rdquo; articles, sponsored
+              blog posts, endless forum threads.{" "}
               <span className="font-semibold text-foreground">
-                No SEO traps. No affiliate slop.
+                We just rank what&apos;s actually good
               </span>{" "}
-              Just real people ranking the products they actually use.
+              — voted by the people who own it.
             </p>
 
             <form
@@ -77,7 +77,7 @@ export function Hero() {
                   href={`/categories/${chip.slug}`}
                   className="inline-flex h-9 items-center gap-2 rounded-full border border-border bg-card px-3.5 text-sm font-medium transition hover:-translate-y-px hover:border-foreground"
                 >
-                  <span className={`size-1.5 rounded-full ${chip.tier}`} />
+                  <span className={`size-2 rounded-[3px] ${chip.tier}`} />
                   {chip.label}
                 </Link>
               ))}
@@ -127,13 +127,13 @@ export function Hero() {
         </div>
 
         {/* Stats strip */}
-        <div className="mt-12 flex flex-wrap items-center gap-x-10 gap-y-6 border-t border-border pt-6">
+        <div className="mt-12 flex flex-wrap items-center gap-x-12 gap-y-6 border-t border-border pt-6">
           <Stat n={`${formatCount(stats.productCount)}+`} label="ranked products" />
           <Stat n={formatCount(stats.categoryCount)} label="community lists" />
           <Stat n={formatCount(stats.voteCount)} label="honest votes cast" />
           <Stat n="0" label="affiliate links" />
           <span className="hidden flex-1 md:block" />
-          <span className="text-sm text-muted-foreground/70">
+          <span className="max-w-[16rem] text-sm text-muted-foreground/70">
             As seen on Hacker News, The Verge
           </span>
         </div>
@@ -144,11 +144,11 @@ export function Hero() {
 
 function Stat({ n, label }: { n: string; label: string }) {
   return (
-    <div className="flex items-baseline gap-2.5">
-      <span className="font-display text-2xl font-extrabold tracking-tight">
+    <div className="flex flex-col items-center text-center">
+      <span className="font-display text-2xl font-extrabold leading-none tracking-tight">
         {n}
       </span>
-      <span className="max-w-[5rem] text-sm leading-tight text-muted-foreground">
+      <span className="mt-1.5 text-sm leading-tight text-muted-foreground">
         {label}
       </span>
     </div>

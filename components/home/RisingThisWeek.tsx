@@ -12,7 +12,7 @@ export function RisingThisWeek() {
         <div className="mb-8 flex items-end justify-between gap-5">
           <div>
             <div className="mb-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              <span className="size-2 rounded-sm bg-coral" />
+              <span className="size-2 rounded-[3px] bg-coral" />
               Rising this week
             </div>
             <h2 className="font-display text-3xl font-extrabold tracking-tight md:text-4xl">

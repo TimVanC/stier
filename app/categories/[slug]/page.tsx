@@ -60,9 +60,6 @@ export default function RankedCategoryPage({
       {/* Header */}
       <header className="mb-8">
         <div className="flex items-center gap-3">
-          <span className="text-3xl" aria-hidden>
-            {category.icon}
-          </span>
           <h1 className="font-display text-3xl font-extrabold tracking-tight md:text-4xl">
             {category.name}
           </h1>
@@ -155,7 +152,6 @@ export default function RankedCategoryPage({
                     href={`/categories/${c.slug}`}
                     className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm transition hover:bg-secondary"
                   >
-                    <span aria-hidden>{c.icon}</span>
                     {c.name}
                   </Link>
                 </li>
