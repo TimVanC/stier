@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Stier — community-ranked products</title>
+<link rel="icon" href="assets/stier-mark.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Inter+Tight:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#1a1a2e;
+    --ink-2:#2a2a44;
+    --ink-mute:#5a5a72;
+    --ink-soft:#8a8aa0;
+    --paper:#f9f5f0;
+    --paper-2:#f3ede4;
+    --paper-3:#ebe3d5;
+    --line:#e3dbcc;
+    --coral:#ff7f81;
+    --coral-2:#ff9799;
+    --coral-ink:#3a1414;
+    --s:#ffba7a;
+    --a:#ffe082;
+    --b:#9ee8a3;
+    --c:#9be8e3;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  body{overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  .wrap{max-width:1320px;margin:0 auto;padding:0 32px}
+  @media (max-width:720px){ .wrap{padding:0 20px} }
+
+  /* ========== NAV ========== */
+  .nav{position:sticky;top:0;z-index:50;background:rgba(249,245,240,.85);backdrop-filter:saturate(140%) blur(10px);-webkit-backdrop-filter:saturate(140%) blur(10px);border-bottom:1px solid rgba(26,26,46,.06)}
+  .nav-inner{display:flex;align-items:center;gap:20px;height:72px}
+  .logo-pill{display:inline-flex;align-items:center;height:44px;padding:0;background:var(--ink);border-radius:12px;flex:0 0 auto;overflow:hidden}
+  .logo-pill img{height:44px;width:auto;display:block;margin:-2px 0}
+  .nav-search{flex:1;max-width:520px;position:relative}
+  .nav-search input{width:100%;height:44px;border-radius:12px;border:1px solid var(--line);background:#fff;padding:0 16px 0 44px;font:500 14px/1 "Inter",sans-serif;color:var(--ink);outline:none;transition:.15s ease}
+  .nav-search input:focus{border-color:var(--ink);box-shadow:0 0 0 4px rgba(26,26,46,.06)}
+  .nav-search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink-soft)}
+  .nav-search kbd{position:absolute;right:10px;top:50%;transform:translateY(-50%);font:600 11px/1 "Inter",sans-serif;color:var(--ink-soft);background:var(--paper-2);border:1px solid var(--line);border-radius:6px;padding:5px 7px}
+  .nav-links{display:flex;align-items:center;gap:6px;margin-left:auto}
+  .nav-links a.ghost{padding:10px 14px;font:600 14px/1 "Inter",sans-serif;color:var(--ink);border-radius:10px;white-space:nowrap}
+  .nav-links a.ghost:hover{background:var(--paper-2)}
+  .btn-primary{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 18px;background:var(--ink);color:#fff;border-radius:12px;font:700 14px/1 "Inter",sans-serif;letter-spacing:-.005em;transition:.15s ease}
+  .btn-primary:hover{background:#000}
+  .btn-primary .dot{width:8px;height:8px;border-radius:50%;background:var(--coral)}
+  .nav-secondary{border-top:1px solid rgba(26,26,46,.06);background:rgba(249,245,240,.6)}
+  .nav-secondary-inner{display:flex;align-items:center;gap:24px;height:46px;font:500 13px/1 "Inter",sans-serif;color:var(--ink-mute);overflow-x:auto;scrollbar-width:none}
+  .nav-secondary-inner::-webkit-scrollbar{display:none}
+  .nav-secondary-inner a{white-space:nowrap;display:inline-flex;align-items:center;gap:6px;padding:6px 0;border-bottom:2px solid transparent}
+  .nav-secondary-inner a:hover{color:var(--ink)}
+  .nav-secondary-inner a.active{color:var(--ink);border-bottom-color:var(--coral)}
+  .nav-secondary-inner .live{display:inline-flex;align-items:center;gap:6px;color:var(--ink);font-weight:600}
+  .nav-secondary-inner .live::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 3px rgba(255,127,129,.18)}
+
+  /* ========== HERO ========== */
+  .hero{position:relative;padding:88px 0 72px;overflow:hidden}
+  .hero .wrap{position:relative;z-index:2}
+  .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:64px;align-items:center}
+  @media (max-width:980px){ .hero-grid{grid-template-columns:1fr;gap:40px} }
+  .eyebrow{display:inline-flex;align-items:center;gap:10px;font:600 12px/1 "Inter",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mute);background:var(--paper-2);border:1px solid var(--line);padding:8px 12px 8px 10px;border-radius:999px;margin-bottom:24px}
+  .eyebrow .bars{display:inline-flex;align-items:flex-end;gap:2px;height:12px}
+  .eyebrow .bars i{display:block;width:3px;border-radius:1px;background:var(--c)}
+  .eyebrow .bars i:nth-child(1){height:4px;background:var(--c)}
+  .eyebrow .bars i:nth-child(2){height:6px;background:var(--b)}
+  .eyebrow .bars i:nth-child(3){height:9px;background:var(--a)}
+  .eyebrow .bars i:nth-child(4){height:12px;background:var(--s)}
+  h1.display{font-family:"Inter Tight","Inter",sans-serif;font-weight:800;font-size:clamp(44px,6.2vw,84px);line-height:.96;letter-spacing:-.035em;margin:0 0 22px;color:var(--ink);text-wrap:balance}
+  h1.display .coral{color:var(--coral)}
+  h1.display em{font-style:normal;position:relative;white-space:nowrap}
+  h1.display em .underbars{position:absolute;left:0;right:0;bottom:-10px;height:8px;display:flex;gap:4px}
+  h1.display em .underbars b{flex:1;height:100%;border-radius:2px;display:block}
+  .sub{font:400 19px/1.5 "Inter",sans-serif;color:var(--ink-mute);max-width:560px;margin:0 0 32px;text-wrap:pretty}
+  .sub b{color:var(--ink);font-weight:600}
+  .hero-search{position:relative;max-width:560px;margin-bottom:22px}
+  .hero-search input{width:100%;height:60px;border-radius:16px;border:1.5px solid var(--ink);background:#fff;padding:0 140px 0 56px;font:500 16px/1 "Inter",sans-serif;color:var(--ink);outline:none;box-shadow:0 1px 0 rgba(26,26,46,.04),0 12px 32px -16px rgba(26,26,46,.18)}
+  .hero-search input::placeholder{color:var(--ink-soft)}
+  .hero-search > svg{position:absolute;left:20px;top:50%;transform:translateY(-50%);color:var(--ink)}
+  .hero-search .go{position:absolute;right:8px;top:8px;height:44px;padding:0 18px;background:var(--coral);color:#fff;border-radius:10px;font:700 14px/1 "Inter",sans-serif;display:inline-flex;align-items:center;gap:6px;letter-spacing:-.005em;transition:.15s ease;white-space:nowrap}
+  .hero-search .go:hover{background:#ff6a6c}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .chips .label{font:600 12px/1 "Inter",sans-serif;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-soft);margin-right:6px}
+  .chip{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;background:#fff;border:1px solid var(--line);border-radius:999px;font:500 13.5px/1 "Inter",sans-serif;color:var(--ink);cursor:pointer;transition:.15s ease}
+  .chip:hover{border-color:var(--ink);transform:translateY(-1px)}
+  .chip .tier{width:6px;height:6px;border-radius:50%}
+
+  /* hero visual: stacked tier-card preview */
+  .hero-card{position:relative;width:100%;max-width:460px;margin-left:auto;perspective:1200px}
+  .stack{position:relative;height:520px}
+  .stack-card{position:absolute;left:0;right:0;background:#fff;border:1px solid var(--line);border-radius:24px;box-shadow:0 24px 60px -28px rgba(26,26,46,.28),0 2px 0 rgba(26,26,46,.02);overflow:hidden}
+  .stack-card.s1{top:0;height:380px;z-index:3;transform:rotate(-3deg) translateX(-12px)}
+  .stack-card.s2{top:60px;height:380px;z-index:2;transform:rotate(2.2deg) translateX(22px);opacity:.92}
+  .stack-card.s3{top:120px;height:380px;z-index:1;transform:rotate(-1deg) translateX(40px);opacity:.55}
+  .stack-card .head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line)}
+  .stack-card .head .title{font:800 17px/1 "Inter Tight","Inter";letter-spacing:-.01em}
+  .stack-card .head .meta{font:500 11px/1 "Inter";color:var(--ink-soft);text-transform:uppercase;letter-spacing:.12em}
+  .stack-card .row{display:grid;grid-template-columns:32px 56px 1fr 60px;gap:12px;align-items:center;padding:12px 20px;border-bottom:1px solid var(--paper-2)}
+  .stack-card .row:last-child{border-bottom:0}
+  .stack-card .tier-badge{width:30px;height:30px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font:800 13px/1 "Inter Tight";color:var(--ink);box-shadow:inset 0 0 0 1px rgba(26,26,46,.08)}
+  .stack-card .thumb{width:56px;height:56px;border-radius:10px;background:var(--paper-2) center/cover;position:relative;overflow:hidden}
+  .stack-card .thumb::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(26,26,46,.05) 0 8px,transparent 8px 16px)}
+  .stack-card .name{display:block;font:600 14px/1.2 "Inter";color:var(--ink)}
+  .stack-card .brand{display:block;font:500 12px/1 "Inter";color:var(--ink-soft);margin-top:3px}
+  .stack-card .votes{text-align:right;font:700 14px/1 "Inter Tight";color:var(--ink);white-space:nowrap}
+  .stack-card .votes small{display:block;font:500 11px/1 "Inter";color:var(--ink-soft);margin-top:3px;text-transform:uppercase;letter-spacing:.08em}
+
+  /* decorative bars at hero edge */
+  .hero-bg-bars{position:absolute;left:-40px;top:120px;display:flex;flex-direction:column;gap:10px;z-index:1;opacity:.85}
+  .hero-bg-bars b{display:block;height:14px;border-radius:3px}
+  .hero-bg-bars b:nth-child(1){width:40px;background:var(--s)}
+  .hero-bg-bars b:nth-child(2){width:70px;background:var(--a)}
+  .hero-bg-bars b:nth-child(3){width:110px;background:var(--b)}
+  .hero-bg-bars b:nth-child(4){width:160px;background:var(--c)}
+  @media (max-width:980px){ .hero-bg-bars{display:none} .stack{height:440px} .hero{padding:48px 0 56px} }
+
+  .strip{display:flex;flex-wrap:wrap;gap:28px 40px;align-items:center;padding:24px 0 0;margin-top:48px;border-top:1px solid var(--line)}
+  .strip .stat{display:flex;align-items:baseline;gap:10px}
+  .strip .stat .n{font:800 26px/1 "Inter Tight";letter-spacing:-.02em}
+  .strip .stat .l{font:500 13px/1.2 "Inter";color:var(--ink-mute)}
+  .strip .sep{flex:1;min-width:0}
+
+  /* ========== SECTION HEAD ========== */
+  section{padding:64px 0}
+  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:32px}
+  .sec-head .left h2{font-family:"Inter Tight","Inter",sans-serif;font-weight:800;font-size:36px;line-height:1;letter-spacing:-.025em;margin:0 0 8px}
+  .sec-head .left p{font:400 15px/1.5 "Inter";color:var(--ink-mute);margin:0;max-width:560px}
+  .sec-head .right{display:flex;align-items:center;gap:8px}
+  .sec-head .right a{font:600 14px/1 "Inter";color:var(--ink);display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:#fff}
+  .sec-head .right a:hover{background:var(--paper-2)}
+  .sec-tag{display:inline-flex;align-items:center;gap:8px;font:600 12px/1 "Inter";letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:14px}
+  .sec-tag .dot{width:8px;height:8px;border-radius:2px}
+
+  /* ========== FEATURED CATEGORIES ========== */
+  .cats{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+  .cats .big{grid-column:span 3;grid-row:span 2}
+  .cats .med{grid-column:span 3}
+  .cats .sml{grid-column:span 2}
+  @media (max-width:980px){
+    .cats{grid-template-columns:repeat(2,1fr)}
+    .cats .big,.cats .med,.cats .sml{grid-column:span 1;grid-row:auto}
+  }
+  .cat{position:relative;background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px;min-height:180px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;transition:.18s ease;cursor:pointer}
+  .cat:hover{transform:translateY(-3px);border-color:var(--ink);box-shadow:0 18px 40px -24px rgba(26,26,46,.25)}
+  .cat .top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .cat .top .name{font-family:"Inter Tight","Inter";font-weight:800;font-size:22px;line-height:1.05;letter-spacing:-.02em}
+  .cat .top .count{font:500 12px/1 "Inter";color:var(--ink-soft);background:var(--paper-2);border-radius:999px;padding:6px 10px;white-space:nowrap}
+  .cat .leader{display:flex;align-items:center;gap:10px;margin-top:18px}
+  .cat .leader .tb{width:26px;height:26px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font:800 11px/1 "Inter Tight";box-shadow:inset 0 0 0 1px rgba(26,26,46,.08)}
+  .cat .leader .who{display:block;font:600 13px/1.2 "Inter"}
+  .cat .leader .who small{display:block;font:500 11px/1 "Inter";color:var(--ink-soft);margin-top:3px}
+  .cat .ranks{display:flex;gap:6px;margin-top:14px}
+  .cat .ranks i{flex:1;height:6px;border-radius:2px}
+  .cat .arrow{position:absolute;right:18px;bottom:18px;width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;transform:translateX(8px);opacity:0;transition:.18s ease}
+  .cat:hover .arrow{transform:translateX(0);opacity:1}
+
+  .cat.feat{background:var(--ink);color:#fff;border:0;min-height:380px;padding:28px;justify-content:space-between}
+  .cat.feat .top .name{font-size:34px;letter-spacing:-.025em}
+  .cat.feat .top .count{background:rgba(255,255,255,.1);color:#fff}
+  .cat.feat .desc{font:400 14px/1.5 "Inter";color:rgba(255,255,255,.7);max-width:280px;margin-top:14px}
+  .cat.feat .miniboard{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;margin-top:20px}
+  .cat.feat .miniboard .mrow{display:grid;grid-template-columns:24px 1fr auto;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);align-items:center}
+  .cat.feat .miniboard .mrow:last-child{border-bottom:0}
+  .cat.feat .miniboard .tb{width:22px;height:22px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font:800 10px/1 "Inter Tight";color:var(--ink)}
+  .cat.feat .miniboard .nm{display:block;font:500 13px/1.2 "Inter";color:#fff}
+  .cat.feat .miniboard .nm small{display:block;font:500 11px/1 "Inter";color:rgba(255,255,255,.5);margin-top:2px}
+  .cat.feat .miniboard .v{font:700 12px/1 "Inter Tight";color:#fff}
+
+  /* ========== TRENDING ========== */
+  .trend-wrap{margin:0 -32px;padding:0 32px;overflow:hidden}
+  .trend{display:flex;gap:18px;overflow-x:auto;padding:8px 4px 28px;scroll-snap-type:x mandatory;scrollbar-width:thin}
+  .trend::-webkit-scrollbar{height:8px}
+  .trend::-webkit-scrollbar-thumb{background:var(--paper-3);border-radius:4px}
+  .pcard{flex:0 0 300px;scroll-snap-align:start;background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;position:relative;transition:.18s ease;cursor:pointer;display:flex;flex-direction:column}
+  .pcard:hover{transform:translateY(-3px);border-color:var(--ink);box-shadow:0 18px 40px -24px rgba(26,26,46,.25)}
+  .pcard .rank{position:absolute;left:14px;top:14px;z-index:2;font:900 64px/.8 "Inter Tight";letter-spacing:-.04em;color:var(--ink);mix-blend-mode:multiply;pointer-events:none}
+  .pcard .rank.r1{color:var(--coral)}
+  .pcard .rank sup{font:700 14px/1 "Inter";vertical-align:super;margin-left:2px;color:var(--ink-soft);mix-blend-mode:normal}
+  .pcard .tier-pill{position:absolute;right:14px;top:14px;z-index:2;height:26px;padding:0 10px;border-radius:7px;display:inline-flex;align-items:center;gap:6px;font:800 11px/1 "Inter Tight";letter-spacing:.06em;color:var(--ink);box-shadow:inset 0 0 0 1px rgba(26,26,46,.08);white-space:nowrap}
+  .pcard .img{height:200px;background:var(--paper-2);position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid var(--line)}
+  .pcard .img::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(26,26,46,.04) 0 10px,transparent 10px 20px)}
+  .pcard .img::after{content:attr(data-ph);position:absolute;bottom:12px;left:0;right:0;text-align:center;font:500 10px/1 "JetBrains Mono",ui-monospace,monospace;color:var(--ink-soft);letter-spacing:.06em;text-transform:uppercase}
+  .pcard .body{padding:16px 18px 14px;flex:1;display:flex;flex-direction:column;gap:4px}
+  .pcard .brand{font:600 11px/1 "Inter";color:var(--ink-soft);text-transform:uppercase;letter-spacing:.1em}
+  .pcard .pname{font-family:"Inter Tight","Inter";font-weight:700;font-size:17px;line-height:1.2;letter-spacing:-.012em;color:var(--ink);margin-top:2px}
+  .pcard .pmeta{display:flex;align-items:center;gap:10px;font:500 12px/1 "Inter";color:var(--ink-mute);margin-top:6px}
+  .pcard .pmeta .pdot{width:3px;height:3px;border-radius:50%;background:var(--ink-soft)}
+  .pcard .foot{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-top:1px solid var(--line);background:var(--paper)}
+  .vote{display:inline-flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;height:34px}
+  .vote button{height:34px;width:34px;display:inline-flex;align-items:center;justify-content:center;color:var(--ink);transition:.12s ease}
+  .vote button:hover{background:var(--paper-2)}
+  .vote button.up.active{background:var(--coral);color:#fff}
+  .vote .count{padding:0 10px;font:700 13px/1 "Inter Tight";min-width:42px;text-align:center;border-left:1px solid var(--line);border-right:1px solid var(--line);height:34px;display:inline-flex;align-items:center;justify-content:center}
+  .pcard .trendarrow{display:inline-flex;align-items:center;gap:4px;font:600 12px/1 "Inter Tight";color:#138a4a;white-space:nowrap}
+  .pcard .trendarrow.down{color:#b13a3a}
+
+  /* ========== TIER LEGEND STRIP ========== */
+  .tier-legend{display:flex;gap:10px;align-items:stretch;padding:18px;background:#fff;border:1px solid var(--line);border-radius:18px;margin-top:24px;flex-wrap:wrap}
+  .tier-legend .tl{flex:1;min-width:140px;display:flex;align-items:center;gap:10px}
+  .tier-legend .sw{width:34px;height:34px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font:800 13px/1 "Inter Tight";color:var(--ink);box-shadow:inset 0 0 0 1px rgba(26,26,46,.08)}
+  .tier-legend .tx{font:600 13px/1.2 "Inter"}
+  .tier-legend .tx small{display:block;font:500 12px/1 "Inter";color:var(--ink-soft);margin-top:4px}
+
+  /* ========== FOOTER ========== */
+  footer.foot{background:var(--ink);color:#fff;padding:72px 0 28px;margin-top:48px}
+  .foot-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:48px}
+  @media (max-width:820px){ .foot-top{grid-template-columns:1fr 1fr} }
+  .foot-brand .logo-pill{background:transparent;border-radius:12px}
+  .foot-brand .logo-pill img{filter:none}
+  .foot-brand p{font:400 14px/1.55 "Inter";color:rgba(255,255,255,.6);margin:18px 0 18px;max-width:340px}
+  .foot-brand .sub{display:flex;gap:0;max-width:340px}
+  .foot-brand .sub input{flex:1;height:42px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-right:0;border-radius:10px 0 0 10px;color:#fff;padding:0 14px;font:500 13px/1 "Inter";outline:none}
+  .foot-brand .sub input::placeholder{color:rgba(255,255,255,.4)}
+  .foot-brand .sub button{height:42px;padding:0 16px;background:var(--coral);color:#fff;border-radius:0 10px 10px 0;font:700 13px/1 "Inter"}
+  .foot-col h4{font:700 12px/1 "Inter";letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5);margin:0 0 18px}
+  .foot-col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+  .foot-col a{font:500 14px/1 "Inter";color:#fff;opacity:.9}
+  .foot-col a:hover{color:var(--coral);opacity:1}
+  .foot-bottom{margin-top:56px;padding-top:24px;border-top:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  .foot-bottom .left{display:flex;gap:16px;align-items:center;font:500 12px/1 "Inter";color:rgba(255,255,255,.45)}
+  .foot-bottom .right{display:flex;gap:14px;font:500 12px/1 "Inter";color:rgba(255,255,255,.45)}
+  .foot-bottom .right a:hover{color:#fff}
+  .foot-bars{display:flex;gap:4px;align-items:flex-end;height:14px}
+  .foot-bars b{display:block;width:4px;border-radius:1px}
+  .foot-bars b:nth-child(1){height:4px;background:var(--c)}
+  .foot-bars b:nth-child(2){height:7px;background:var(--b)}
+  .foot-bars b:nth-child(3){height:10px;background:var(--a)}
+  .foot-bars b:nth-child(4){height:14px;background:var(--s)}
+
+  /* small motion */
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .stack-card.s1{animation:floaty 6s ease-in-out infinite}
+  .stack-card.s2{animation:floaty 6s ease-in-out infinite .8s}
+</style>
+</head>
+<body>
+
+<!-- ======================= NAV ======================= -->
+<header class="nav" data-screen-label="nav">
+  <div class="wrap nav-inner">
+    <a class="logo-pill" href="#" aria-label="Stier home">
+      <img src="assets/stier-wordmark.png" alt="Stier" />
+    </a>
+    <div class="nav-search" role="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+      <input type="search" placeholder="Search 12,400+ ranked products…" />
+      <kbd>⌘ K</kbd>
+    </div>
+    <nav class="nav-links">
+      <a class="ghost" href="#">Browse</a>
+      <a class="ghost" href="#">Lists</a>
+      <a class="ghost" href="#">Log in</a>
+      <a class="btn-primary" href="#"><span class="dot"></span>Sign up</a>
+    </nav>
+  </div>
+  <div class="nav-secondary">
+    <div class="wrap nav-secondary-inner">
+      <a class="active" href="#">For you</a>
+      <a href="#">Trending</a>
+      <a href="#">New rankings</a>
+      <a href="#">Home &amp; kitchen</a>
+      <a href="#">Audio</a>
+      <a href="#">Outdoors</a>
+      <a href="#">Apparel</a>
+      <a href="#">Tools</a>
+      <a href="#">Tech</a>
+      <span class="live">2,481 voting now</span>
+    </div>
+  </div>
+</header>
+
+<!-- ======================= HERO ======================= -->
+<section class="hero" data-screen-label="hero">
+  <div class="hero-bg-bars" aria-hidden="true"><b></b><b></b><b></b><b></b></div>
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">
+          <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          Community-ranked · since 2024
+        </div>
+        <h1 class="display">
+          Stop scrolling Reddit.<br />
+          Start with the <em>best.<span class="underbars" aria-hidden="true"><b style="background:var(--s)"></b><b style="background:var(--a)"></b><b style="background:var(--b)"></b><b style="background:var(--c)"></b></span></em>
+        </h1>
+        <p class="sub">Honest, community-voted tier lists for the stuff worth owning. <b>No SEO traps. No affiliate slop.</b> Just real people ranking the products they actually use.</p>
+        <form class="hero-search" onsubmit="event.preventDefault()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          <input type="search" placeholder="What are you trying to find?" />
+          <button class="go" type="submit">
+            Rank it
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
+          </button>
+        </form>
+        <div class="chips" id="heroChips">
+          <span class="label">Popular</span>
+          <button class="chip" data-q="Coffee Beans"><span class="tier" style="background:var(--s)"></span>Coffee Beans</button>
+          <button class="chip" data-q="Headphones"><span class="tier" style="background:var(--a)"></span>Headphones</button>
+          <button class="chip" data-q="Winter Jackets"><span class="tier" style="background:var(--b)"></span>Winter Jackets</button>
+          <button class="chip" data-q="Running Shoes"><span class="tier" style="background:var(--c)"></span>Running Shoes</button>
+          <button class="chip" data-q="Slippers"><span class="tier" style="background:var(--coral)"></span>Slippers</button>
+        </div>
+      </div>
+
+      <!-- Hero visual: layered tier-card mini-rankings -->
+      <div class="hero-card" aria-hidden="true">
+        <div class="stack">
+          <div class="stack-card s3">
+            <div class="head"><span class="title">Pour-over kettles</span><span class="meta">8,210 votes</span></div>
+            <div class="row"><span class="tier-badge" style="background:var(--s)">S</span><span class="thumb"></span><span><span class="name">Stagg EKG Pro</span><span class="brand">Fellow</span></span><span class="votes">+421<small>this wk</small></span></div>
+            <div class="row"><span class="tier-badge" style="background:var(--a)">A</span><span class="thumb"></span><span><span class="name">Buono</span><span class="brand">Hario</span></span><span class="votes">+184<small>this wk</small></span></div>
+          </div>
+          <div class="stack-card s2">
+            <div class="head"><span class="title">Slippers</span><span class="meta">3,109 votes</span></div>
+            <div class="row"><span class="tier-badge" style="background:var(--s)">S</span><span class="thumb"></span><span><span class="name">Mayari</span><span class="brand">Birkenstock</span></span><span class="votes">+612<small>this wk</small></span></div>
+            <div class="row"><span class="tier-badge" style="background:var(--a)">A</span><span class="thumb"></span><span><span class="name">Original Suicoke</span><span class="brand">Suicoke</span></span><span class="votes">+288<small>this wk</small></span></div>
+            <div class="row"><span class="tier-badge" style="background:var(--b)">B</span><span class="thumb"></span><span><span class="name">Classic Clog</span><span class="brand">Glerups</span></span><span class="votes">+143<small>this wk</small></span></div>
+          </div>
+          <div class="stack-card s1">
+            <div class="head"><span class="title">Over-ear headphones</span><span class="meta">14,802 votes</span></div>
+            <div class="row"><span class="tier-badge" style="background:var(--s)">S</span><span class="thumb"></span><span><span class="name">HD 6XX</span><span class="brand">Sennheiser × Drop</span></span><span class="votes">+1.2k<small>this wk</small></span></div>
+            <div class="row"><span class="tier-badge" style="background:var(--a)">A</span><span class="thumb"></span><span><span class="name">DT 770 Pro</span><span class="brand">Beyerdynamic</span></span><span class="votes">+842<small>this wk</small></span></div>
+            <div class="row"><span class="tier-badge" style="background:var(--b)">B</span><span class="thumb"></span><span><span class="name">Edition XS</span><span class="brand">HIFIMAN</span></span><span class="votes">+311<small>this wk</small></span></div>
+            <div class="row"><span class="tier-badge" style="background:var(--c)">C</span><span class="thumb"></span><span><span class="name">M50x</span><span class="brand">Audio-Technica</span></span><span class="votes">+96<small>this wk</small></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="strip">
+      <div class="stat"><span class="n">12,400+</span><span class="l">ranked<br/>products</span></div>
+      <div class="stat"><span class="n">980</span><span class="l">community<br/>tier lists</span></div>
+      <div class="stat"><span class="n">2.1M</span><span class="l">honest<br/>votes cast</span></div>
+      <div class="stat"><span class="n">0</span><span class="l">affiliate<br/>links</span></div>
+      <div class="sep"></div>
+      <div class="stat" style="opacity:.6"><span class="l">As seen on Hacker News, The Verge, Garage Magazine</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= FEATURED CATEGORIES ======================= -->
+<section data-screen-label="featured-categories" style="padding-top:24px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="left">
+        <div class="sec-tag"><span class="dot" style="background:var(--s)"></span>Featured categories</div>
+        <h2>What the community is ranking right now</h2>
+        <p>Hand-picked lists with the deepest debates this week. Each S-tier survived hundreds of votes — and a few civil arguments.</p>
+      </div>
+      <div class="right">
+        <a href="#">Browse all 312 →</a>
+      </div>
+    </div>
+
+    <div class="cats">
+      <a class="cat feat big" href="#">
+        <div class="top">
+          <div class="name">Coffee Beans<br/>for pour-over</div>
+          <span class="count">19,402 votes</span>
+        </div>
+        <p class="desc">The most contested list on Stier this month. Single-origin, light roast, espresso — settled by people who actually grind every morning.</p>
+        <div class="miniboard">
+          <div class="mrow"><span class="tb" style="background:var(--s)">S</span><span class="nm">Hairbender<small>Stumptown · Portland</small></span><span class="v">↑ 3,210</span></div>
+          <div class="mrow"><span class="tb" style="background:var(--s)">S</span><span class="nm">Hologram<small>Counter Culture · Durham</small></span><span class="v">↑ 2,884</span></div>
+          <div class="mrow"><span class="tb" style="background:var(--a)">A</span><span class="nm">Black Cat<small>Intelligentsia · Chicago</small></span><span class="v">↑ 2,012</span></div>
+          <div class="mrow"><span class="tb" style="background:var(--a)">A</span><span class="nm">Wizard<small>Onyx Coffee Lab</small></span><span class="v">↑ 1,776</span></div>
+        </div>
+      </a>
+
+      <a class="cat med" href="#">
+        <div class="top"><span class="name">Headphones<br/>under $300</span><span class="count">14,802 votes</span></div>
+        <div class="leader"><span class="tb" style="background:var(--s)">S</span><span class="who">Sennheiser HD 6XX<small>Leading by 412 votes</small></span></div>
+        <div class="ranks"><i style="background:var(--s)"></i><i style="background:var(--a)"></i><i style="background:var(--b)"></i><i style="background:var(--c)"></i><i style="background:var(--paper-3)"></i></div>
+        <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></span>
+      </a>
+
+      <a class="cat sml" href="#">
+        <div class="top"><span class="name">Winter<br/>Jackets</span><span class="count">9,118</span></div>
+        <div class="leader"><span class="tb" style="background:var(--s)">S</span><span class="who">Patagonia DAS<small>Synthetic · −20°F</small></span></div>
+        <div class="ranks"><i style="background:var(--s)"></i><i style="background:var(--a)"></i><i style="background:var(--b)"></i><i style="background:var(--c)"></i><i style="background:var(--paper-3)"></i></div>
+        <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></span>
+      </a>
+
+      <a class="cat sml" href="#">
+        <div class="top"><span class="name">Running<br/>Shoes</span><span class="count">22,041</span></div>
+        <div class="leader"><span class="tb" style="background:var(--s)">S</span><span class="who">Saucony Endorphin Pro 4<small>5k–marathon</small></span></div>
+        <div class="ranks"><i style="background:var(--s)"></i><i style="background:var(--a)"></i><i style="background:var(--b)"></i><i style="background:var(--c)"></i><i style="background:var(--paper-3)"></i></div>
+        <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></span>
+      </a>
+
+      <a class="cat sml" href="#">
+        <div class="top"><span class="name">Slippers</span><span class="count">3,109</span></div>
+        <div class="leader"><span class="tb" style="background:var(--s)">S</span><span class="who">Glerups Wool Boot<small>Indoor · wool</small></span></div>
+        <div class="ranks"><i style="background:var(--s)"></i><i style="background:var(--a)"></i><i style="background:var(--b)"></i><i style="background:var(--paper-3)"></i><i style="background:var(--paper-3)"></i></div>
+        <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></span>
+      </a>
+
+      <a class="cat med" href="#">
+        <div class="top"><span class="name">Cast iron skillets,<br/>tested forever</span><span class="count">6,540 votes</span></div>
+        <div class="leader"><span class="tb" style="background:var(--s)">S</span><span class="who">Field Co. No. 8<small>Smooth · 4.2 lbs</small></span></div>
+        <div class="ranks"><i style="background:var(--s)"></i><i style="background:var(--a)"></i><i style="background:var(--b)"></i><i style="background:var(--c)"></i><i style="background:var(--paper-3)"></i></div>
+        <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></span>
+      </a>
+    </div>
+
+    <div class="tier-legend" aria-label="Tier guide">
+      <div class="tl"><span class="sw" style="background:var(--s)">S</span><span class="tx">Best-in-class<small>Top 5% by community vote</small></span></div>
+      <div class="tl"><span class="sw" style="background:var(--a)">A</span><span class="tx">Excellent<small>Beats most alternatives</small></span></div>
+      <div class="tl"><span class="sw" style="background:var(--b)">B</span><span class="tx">Solid pick<small>You won't regret it</small></span></div>
+      <div class="tl"><span class="sw" style="background:var(--c)">C</span><span class="tx">Niche / Acceptable<small>Only if it fits the use-case</small></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= TRENDING ======================= -->
+<section data-screen-label="trending">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="left">
+        <div class="sec-tag"><span class="dot" style="background:var(--coral)"></span>Rising this week</div>
+        <h2>Climbing the rankings</h2>
+        <p>Products moving up — fast. Voted by the community in the last 7 days.</p>
+      </div>
+      <div class="right">
+        <button id="trendPrev" aria-label="Scroll left"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="m11 18-6-6 6-6"></path></svg></button>
+        <button id="trendNext" aria-label="Scroll right"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></button>
+        <a href="#">See all</a>
+      </div>
+    </div>
+
+    <div class="trend-wrap">
+      <div class="trend" id="trendRow">
+
+        <article class="pcard" data-rank="1">
+          <span class="rank r1">01<sup>↑12</sup></span>
+          <span class="tier-pill" style="background:var(--s)">S TIER</span>
+          <div class="img" data-ph="HEADPHONES · PRODUCT SHOT"></div>
+          <div class="body">
+            <div class="brand">Sennheiser × Drop</div>
+            <div class="pname">HD 6XX Open-Back</div>
+            <div class="pmeta"><span>Headphones</span><span class="pdot"></span><span>$220</span><span class="pdot"></span><span class="trendarrow">▲ 3,402 this week</span></div>
+          </div>
+          <div class="foot">
+            <div class="vote">
+              <button class="up" aria-label="Upvote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path></svg></button>
+              <span class="count">14.8k</span>
+              <button class="down" aria-label="Downvote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"></path><path d="m19 12-7 7-7-7"></path></svg></button>
+            </div>
+            <span class="trendarrow">▲ 12 ranks</span>
+          </div>
+        </article>
+
+        <article class="pcard" data-rank="2">
+          <span class="rank">02<sup>↑4</sup></span>
+          <span class="tier-pill" style="background:var(--s)">S TIER</span>
+          <div class="img" data-ph="COFFEE BEAN BAG · 12 OZ"></div>
+          <div class="body">
+            <div class="brand">Stumptown Coffee</div>
+            <div class="pname">Hairbender Espresso</div>
+            <div class="pmeta"><span>Coffee Beans</span><span class="pdot"></span><span>$18 / 12oz</span><span class="pdot"></span><span class="trendarrow">▲ 2,140 this week</span></div>
+          </div>
+          <div class="foot">
+            <div class="vote">
+              <button class="up" aria-label="Upvote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path></svg></button>
+              <span class="count">11.2k</span>
+              <button class="down" aria-label="Downvote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"></path><path d="m19 12-7 7-7-7"></path></svg></button>
+            </div>
+            <span class="trendarrow">▲ 4 ranks</span>
+          </div>
+        </article>
+
+        <article class="pcard" data-rank="3">
+          <span class="rank">03<sup>↑2</sup></span>
+          <span class="tier-pill" style="background:var(--a)">A TIER</span>
+          <div class="img" data-ph="WOOL SLIPPER · PRODUCT SHOT"></div>
+          <div class="body">
+            <div class="brand">Glerups</div>
+            <div class="pname">Wool Boot, Natural</div>
+            <div class="pmeta"><span>Slippers</span><span class="pdot"></span><span>$130</span><span class="pdot"></span><span class="trendarrow">▲ 612 this week</span></div>
+          </div>
+          <div class="foot">
+            <div class="vote">
+              <button class="up" aria-label="Upvote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path></svg></button>
+              <span class="count">8.4k</span>
+              <button class="down" aria-label="Downvote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"></path><path d="m19 12-7 7-7-7"></path></svg></button>
+            </div>
+            <span class="trendarrow">▲ 2 ranks</span>
+          </div>
+        </article>
+
+        <article class="pcard" data-rank="4">
+          <span class="rank">04<sup>↑9</sup></span>
+          <span class="tier-pill" style="background:var(--s)">S TIER</span>
+          <div class="img" data-ph="RUNNING SHOE · SIDE PROFILE"></div>
+          <div class="body">
+            <div class="brand">Saucony</div>
+            <div class="pname">Endorphin Pro 4</div>
+            <div class="pmeta"><span>Running Shoes</span><span class="pdot"></span><span>$225</span><span class="pdot"></span><span class="trendarrow">▲ 1,820 this week</span></div>
+          </div>
+          <div class="foot">
+            <div class="vote">
+              <button class="up" aria-label="Upvote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path></svg></button>
+              <span class="count">9.1k</span>
+              <button class="down" aria-label="Downvote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"></path><path d="m19 12-7 7-7-7"></path></svg></button>
+            </div>
+            <span class="trendarrow">▲ 9 ranks</span>
+          </div>
+        </article>
+
+        <article class="pcard" data-rank="5">
+          <span class="rank">05<sup>↓1</sup></span>
+          <span class="tier-pill" style="background:var(--a)">A TIER</span>
+          <div class="img" data-ph="WINTER JACKET · INSULATED"></div>
+          <div class="body">
+            <div class="brand">Patagonia</div>
+            <div class="pname">DAS Light Hoody</div>
+            <div class="pmeta"><span>Winter Jackets</span><span class="pdot"></span><span>$329</span><span class="pdot"></span><span class="trendarrow down">▼ 84 this week</span></div>
+          </div>
+          <div class="foot">
+            <div class="vote">
+              <button class="up" aria-label="Upvote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path></svg></button>
+              <span class="count">6.7k</span>
+              <button class="down" aria-label="Downvote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"></path><path d="m19 12-7 7-7-7"></path></svg></button>
+            </div>
+            <span class="trendarrow down">▼ 1 rank</span>
+          </div>
+        </article>
+
+        <article class="pcard" data-rank="6">
+          <span class="rank">06<sup>↑21</sup></span>
+          <span class="tier-pill" style="background:var(--b)">B TIER</span>
+          <div class="img" data-ph="CAST IRON SKILLET · 10 IN"></div>
+          <div class="body">
+            <div class="brand">Field Company</div>
+            <div class="pname">No. 8 Cast Iron Skillet</div>
+            <div class="pmeta"><span>Cookware</span><span class="pdot"></span><span>$165</span><span class="pdot"></span><span class="trendarrow">▲ 980 this week</span></div>
+          </div>
+          <div class="foot">
+            <div class="vote">
+              <button class="up" aria-label="Upvote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path></svg></button>
+              <span class="count">5.2k</span>
+              <button class="down" aria-label="Downvote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"></path><path d="m19 12-7 7-7-7"></path></svg></button>
+            </div>
+            <span class="trendarrow">▲ 21 ranks</span>
+          </div>
+        </article>
+
+        <article class="pcard" data-rank="7">
+          <span class="rank">07<sup>↑5</sup></span>
+          <span class="tier-pill" style="background:var(--c)">C TIER</span>
+          <div class="img" data-ph="POUR-OVER KETTLE · BLACK"></div>
+          <div class="body">
+            <div class="brand">Fellow</div>
+            <div class="pname">Stagg EKG Pro</div>
+            <div class="pmeta"><span>Kettles</span><span class="pdot"></span><span>$195</span><span class="pdot"></span><span class="trendarrow">▲ 421 this week</span></div>
+          </div>
+          <div class="foot">
+            <div class="vote">
+              <button class="up" aria-label="Upvote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path></svg></button>
+              <span class="count">4.1k</span>
+              <button class="down" aria-label="Downvote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"></path><path d="m19 12-7 7-7-7"></path></svg></button>
+            </div>
+            <span class="trendarrow">▲ 5 ranks</span>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= FOOTER ======================= -->
+<footer class="foot" data-screen-label="footer">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <a class="logo-pill" href="#" aria-label="Stier home" style="display:inline-flex">
+          <img src="assets/stier-wordmark.png" alt="Stier" />
+        </a>
+        <p>The community ranks the products worth buying — once, and for life. Made by people who got tired of scrolling.</p>
+        <form class="sub" onsubmit="event.preventDefault()">
+          <input type="email" placeholder="you@somewhere.com" />
+          <button type="submit">Get the weekly ↑</button>
+        </form>
+      </div>
+      <div class="foot-col">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="#">Browse categories</a></li>
+          <li><a href="#">Trending now</a></li>
+          <li><a href="#">New rankings</a></li>
+          <li><a href="#">Open debates</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="#">Start a tier list</a></li>
+          <li><a href="#">Voting guide</a></li>
+          <li><a href="#">Moderators</a></li>
+          <li><a href="#">Manifesto</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">How rankings work</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Press kit</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div class="left">
+        <span class="foot-bars" aria-hidden="true"><b></b><b></b><b></b><b></b></span>
+        © 2026 Stier, Inc. · Made for the long haul.
+      </div>
+      <div class="right">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">RSS</a>
+        <a href="#">Status</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Upvote interaction
+  document.querySelectorAll(".pcard").forEach(card => {
+    const upBtn = card.querySelector(".vote .up");
+    const dnBtn = card.querySelector(".vote .down");
+    const countEl = card.querySelector(".vote .count");
+    let state = 0; // -1, 0, 1
+    const raw = countEl.textContent.trim();
+    const base = (() => {
+      if (raw.endsWith("k")) return Math.round(parseFloat(raw) * 1000);
+      return parseInt(raw.replace(/[^0-9]/g, ""), 10) || 0;
+    })();
+    function render() {
+      const n = base + state;
+      countEl.textContent = n >= 10000 ? (n / 1000).toFixed(1) + "k" : n >= 1000 ? (n / 1000).toFixed(1) + "k" : String(n);
+      upBtn.classList.toggle("active", state === 1);
+      dnBtn.classList.toggle("active", state === -1);
+    }
+    upBtn.addEventListener("click", e => { e.stopPropagation(); state = state === 1 ? 0 : 1; render(); });
+    dnBtn.addEventListener("click", e => { e.stopPropagation(); state = state === -1 ? 0 : -1; render(); });
+  });
+
+  // Trending scroll buttons
+  const row = document.getElementById("trendRow");
+  document.getElementById("trendPrev").addEventListener("click", () => row.scrollBy({ left: -340, behavior: "smooth" }));
+  document.getElementById("trendNext").addEventListener("click", () => row.scrollBy({ left:  340, behavior: "smooth" }));
+
+  // Chip selection
+  document.querySelectorAll("#heroChips .chip").forEach(c => {
+    c.addEventListener("click", () => {
+      document.querySelectorAll("#heroChips .chip").forEach(x => x.style.borderColor = "");
+      c.style.borderColor = "var(--ink)";
+    });
+  });
+</script>
+
+</body>
+</html>

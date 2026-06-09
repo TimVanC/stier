@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Stier design tokens (mapped from .cursorrules design system) */
+    --background: 33 43% 96%; /* #f9f5f0 warm off-white */
+    --foreground: 240 28% 14%; /* #1a1a2e deep navy */
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 28% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 28% 14%;
+
+    --primary: 359 100% 75%; /* #ff7f81 coral */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 36 39% 92%; /* #f3ede4 warm paper */
+    --secondary-foreground: 240 28% 14%;
+
+    --muted: 36 39% 92%;
+    --muted-foreground: 220 9% 46%; /* #6b7280 */
+
+    --accent: 36 39% 92%;
+    --accent-foreground: 240 28% 14%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 37 20% 87%; /* #e5e0d8 */
+    --input: 37 20% 87%;
+    --ring: 240 28% 14%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 240 28% 14%;
+    --foreground: 0 0% 100%;
+
+    --card: 240 26% 18%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 240 26% 18%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 359 100% 75%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 22% 24%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 240 22% 24%;
+    --muted-foreground: 220 9% 65%;
+
+    --accent: 240 22% 24%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 20% 28%;
+    --input: 240 20% 28%;
+    --ring: 359 100% 75%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbars on horizontal scroll rows (per .cursorrules responsive rules) */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

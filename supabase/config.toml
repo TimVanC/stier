@@ -1,0 +1,6 @@
+# Local Supabase project config.
+# Link to the hosted project ("stier" under the van training org) with:
+#   supabase link --project-ref ytczqoyrtzblbqihvrdp
+# then apply migrations with:
+#   supabase db push
+project_id = "stier"

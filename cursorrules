@@ -1,0 +1,346 @@
+# Stier — Cursor Rules
+
+## Project Overview
+Stier (pronounced "steer") is a community-powered product discovery and ranking platform. Think "Buy It For Life" as a standalone product. Users vote on the best products in specific categories, surfacing hidden gems that deep research uncovers — not sponsored or SEO-optimized recommendations. The name is a play on tier lists where "S" is the highest tier.
+
+## Core Principle
+Every decision — code, UI, UX, copy — should serve one goal: making Stier feel more trustworthy and useful than Reddit threads, Wirecutter, or Amazon reviews. If a decision makes the product feel corporate, generic, or affiliate-driven, it's the wrong decision.
+
+---
+
+## Tech Stack
+- **Framework:** Next.js 14 with App Router
+- **Language:** TypeScript (strict mode, no any types)
+- **Styling:** Tailwind CSS
+- **Components:** shadcn/ui
+- **Database:** Supabase (Postgres)
+- **Auth:** Supabase Auth
+- **Storage:** Supabase Storage (for product images)
+- **Hosting:** Vercel
+- **Dev Tool:** Cursor
+
+Do NOT introduce new dependencies without flagging it first. Keep the stack consolidated. Cloudinary and Clerk are explicitly NOT used — Supabase handles auth and storage.
+
+---
+
+## Design System
+
+### Colors
+```
+Primary Accent:     #ff7f81  (coral/salmon — CTAs, tier S badge, highlights)
+Background Dark:    #1a1a2e  (deep navy — nav, footer, dark cards)
+Background Light:   #f9f5f0  (warm off-white — page background)
+Text Dark:          #1a1a2e  (body text, headings)
+Text Light:         #ffffff  (text on dark backgrounds)
+Text Muted:         #6b7280  (secondary text, labels)
+Border:             #e5e0d8  (subtle borders on light background)
+
+Tier Badge Colors (pastel):
+S Tier:   #ff7f81  (coral)
+A Tier:   #ffb347  (orange)
+B Tier:   #ffd700  (yellow)
+C Tier:   #90ee90  (green)
+D Tier:   #87ceeb  (cyan/light blue)
+F Tier:   #d3d3d3  (light gray)
+```
+
+### Typography
+- **Primary font:** Inter (Google Fonts)
+- **Display font:** Satoshi (for headlines)
+- **Font scale:** Use Tailwind defaults, nothing custom unless specified
+
+### Border Radius
+- Cards: `rounded-xl`
+- Buttons: `rounded-full` for primary CTAs, `rounded-lg` for secondary
+- Badges: `rounded-full`
+- Inputs: `rounded-lg`
+
+### Spacing
+- Section padding: `py-16` desktop, `py-10` mobile
+- Card padding: `p-5` or `p-6`
+- Gap between cards: `gap-4` or `gap-6`
+
+### Shadows
+- Cards: `shadow-sm` default, `shadow-md` on hover
+- No heavy drop shadows — keep it clean
+
+---
+
+## Component Patterns
+
+### Primary Button
+```tsx
+<Button className="bg-[#ff7f81] hover:bg-[#ff6b6d] text-white rounded-full px-6 py-2 font-medium">
+```
+
+### Tier Badge
+```tsx
+<span className="inline-flex items-center justify-center w-7 h-7 rounded-full text-sm font-bold text-white bg-[tierColor]">
+  S
+</span>
+```
+
+### Product Card (ranked list)
+Contains: rank number, product image, name, brand, tier badge, score, upvote/downvote, review count, save button, buy link
+
+### Category Card
+Contains: category name, icon/image, product count, vote count, top ranked product name, tier badge
+
+---
+
+## Responsive Behavior
+- **Mobile first** — always write mobile styles first, then scale up
+- **Breakpoints:** sm (640px), md (768px), lg (1024px), xl (1280px)
+- Most users are expected to be on mobile
+- Touch targets minimum 44x44px
+- Horizontal scroll rows use `overflow-x-auto` with `scrollbar-hide`
+- Bottom sticky elements on mobile (e.g. Buy button on product detail)
+
+---
+
+## File Structure
+```
+/app
+  /layout.tsx           — root layout with nav and footer
+  /page.tsx             — homepage (post-launch) or waitlist (pre-launch)
+  /waitlist/page.tsx    — waitlist page
+  /categories/page.tsx  — category list
+  /categories/[slug]/page.tsx         — ranked category page
+  /categories/[slug]/[product]/page.tsx — product detail
+  /search/page.tsx      — search results
+  /submit/page.tsx      — submit a product
+  /login/page.tsx       — login
+  /signup/page.tsx      — signup
+  /profile/[username]/page.tsx  — public profile
+  /profile/lists/page.tsx
+  /profile/upvotes/page.tsx
+  /profile/submissions/page.tsx
+  /profile/reviews/page.tsx
+  /profile/settings/page.tsx
+  /admin/page.tsx
+  /admin/submissions/page.tsx
+  /admin/categories/page.tsx
+  /admin/reviews/page.tsx
+  /admin/users/page.tsx
+
+/components
+  /ui                   — shadcn/ui components
+  /layout               — Navbar, Footer, MobileMenu
+  /product              — ProductCard, ProductCardCompact, TierBadge, VoteButtons
+  /category             — CategoryCard, CategoryGrid
+  /review               — ReviewCard, ReviewForm
+  /profile              — ProfileHeader, ProfileTabs
+  /admin                — AdminTable, SubmissionCard
+  /shared               — SearchBar, EmptyState, LoadingState, Modal
+
+/lib
+  /supabase.ts          — Supabase client
+  /supabase-server.ts   — Supabase server client
+  /utils.ts             — shared utilities
+  /ranking.ts           — ranking score calculation logic
+
+/types
+  /index.ts             — all shared TypeScript types
+
+/hooks
+  /useVote.ts
+  /useAuth.ts
+  /useSaveList.ts
+```
+
+---
+
+## Database Schema
+
+### profiles
+```sql
+id uuid primary key
+user_id uuid references auth.users
+display_name text
+username text unique
+avatar_url text
+is_private boolean default false
+created_at timestamp
+```
+
+### categories
+```sql
+id uuid primary key
+name text
+slug text unique
+description text
+image_url text
+is_featured boolean default false
+is_active boolean default true
+created_at timestamp
+```
+
+### products
+```sql
+id uuid primary key
+category_id uuid references categories
+name text
+slug text
+brand text
+description text
+image_url text
+product_url text
+affiliate_url text
+status text default 'pending' -- pending | approved | rejected
+submitted_by uuid references profiles
+rejection_reason text
+created_at timestamp
+```
+
+### votes
+```sql
+id uuid primary key
+user_id uuid references auth.users
+product_id uuid references products
+vote_type text -- upvote | downvote
+created_at timestamp
+unique(user_id, product_id)
+```
+
+### reviews
+```sql
+id uuid primary key
+user_id uuid references auth.users
+product_id uuid references products
+rating integer -- 1-5
+title text
+body text
+pros text
+cons text
+owns_product boolean default false
+helpful_count integer default 0
+created_at timestamp
+updated_at timestamp
+```
+
+### saved_lists
+```sql
+id uuid primary key
+user_id uuid references auth.users
+name text
+description text
+visibility text default 'private' -- private | public
+created_at timestamp
+```
+
+### saved_list_items
+```sql
+id uuid primary key
+list_id uuid references saved_lists
+product_id uuid references products
+added_at timestamp
+```
+
+### waitlist
+```sql
+id uuid primary key
+email text unique
+referral_code text unique
+referred_by text
+product_suggestions text
+created_at timestamp
+```
+
+---
+
+## Ranking Logic
+```typescript
+// Basic MVP ranking score
+function calculateScore(upvotes: number, downvotes: number, reviewCount: number, daysSinceAdded: number): number {
+  const netVotes = upvotes - downvotes
+  const totalVotes = upvotes + downvotes
+  const voteConfidence = totalVotes > 0 ? netVotes / totalVotes : 0
+  const recencyBoost = Math.max(0, 1 - daysSinceAdded / 365)
+  return (voteConfidence * 100) + (reviewCount * 2) + (recencyBoost * 10)
+}
+
+// Tier assignment
+function assignTier(score: number, categoryTopScore: number): string {
+  const ratio = score / categoryTopScore
+  if (ratio >= 0.85) return 'S'
+  if (ratio >= 0.70) return 'A'
+  if (ratio >= 0.50) return 'B'
+  if (ratio >= 0.30) return 'C'
+  if (ratio >= 0.15) return 'D'
+  return 'F'
+}
+```
+
+---
+
+## Auth Rules
+- Anonymous users: can view everything — all products, categories, rankings, reviews, vote counts
+- Logged in users: can vote, review, save, submit products
+- Admin users: identified by a role field in profiles table (`role: 'admin'`)
+- Voting prompts sign up modal for anonymous users — never hard redirect
+- One vote per user per product enforced at database level (unique constraint)
+- Product submissions require approval before going public
+
+---
+
+## Row Level Security Patterns
+- Users can only edit their own profile, reviews, lists
+- Votes are insert-only from the owning user
+- Products with status 'pending' or 'rejected' are only visible to admin
+- Admin role bypasses RLS for moderation actions
+
+---
+
+## Copy and Tone
+- Direct, honest, slightly playful — never corporate
+- "Ranked by people who actually own them" — ownership and authenticity matter
+- No superlatives in UI copy ("amazing", "incredible", "best ever")
+- Error messages explain what happened and what to do next
+- Empty states invite action, never just say "nothing here"
+- CTAs are specific: "Start voting" not "Get started", "Save to list" not "Save"
+
+---
+
+## Key UX Rules
+- Search bar is always the most prominent interactive element
+- Voting never requires a page reload — optimistic UI updates
+- Buy buttons always open in a new tab
+- Sign up modal appears on any action requiring auth — never a hard redirect
+- Horizontal scroll rows always have a subtle right fade to hint at more content
+- Mobile bottom sticky bar for Buy button on product detail page
+- Tier bars from the logo appear as decorative accents in empty states and auth pages
+- Pagination over infinite scroll on ranked list pages (better for SEO)
+- Loading states on every async action — no blank flashes
+
+---
+
+## SEO Rules
+- Every category page and product page gets unique meta title and description
+- Category page title format: "Best [Category] — Ranked by the Community | Stier"
+- Product page title format: "[Product Name] by [Brand] — [Tier] Tier | Stier"
+- Static generation where possible, ISR for ranked lists (revalidate every hour)
+- Canonical URLs on all pages
+- OG image for social sharing on category and product pages
+
+---
+
+## What NOT to Do
+- Do not use any inline styles — Tailwind classes only
+- Do not use `any` TypeScript type
+- Do not fetch data client-side if it can be done server-side
+- Do not hardcode colors outside of the design system above
+- Do not add Clerk, Cloudinary, or any auth/storage service other than Supabase
+- Do not create admin UI that is overly complex — keep it functional and simple
+- Do not show pending or rejected products to non-admin users
+- Do not allow voting without authentication
+- Do not use `alert()` for any user feedback — use toast notifications
+- Do not redirect on auth-required actions — use a modal instead
+
+---
+
+## PROGRESS Tracking
+After completing any meaningful piece of work, update PROGRESS.md with:
+- What was built
+- What files were created or modified
+- What still needs to be done
+- Any decisions made that future prompts should know about
