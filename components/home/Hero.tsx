@@ -3,8 +3,8 @@ import { ArrowRight, Search } from "lucide-react";
 
 import { TierBars } from "@/components/shared/TierBars";
 import { HeroStackCards } from "@/components/home/HeroStackCards";
+import { getSiteStatsFromDb } from "@/lib/db/catalog";
 import { formatCount } from "@/lib/utils";
-import { getSiteStats } from "@/lib/seed-data";
 
 const POPULAR = [
   { label: "Coffee Beans", slug: "coffee-beans", tier: "bg-tier-s" },
@@ -13,8 +13,8 @@ const POPULAR = [
   { label: "Running Shoes", slug: "running-shoes", tier: "bg-tier-c" },
 ];
 
-export function Hero() {
-  const stats = getSiteStats();
+export async function Hero() {
+  const stats = await getSiteStatsFromDb();
 
   return (
     <section className="relative overflow-hidden">
@@ -86,7 +86,10 @@ export function Hero() {
 
         {/* Stats strip */}
         <div className="mt-12 flex flex-wrap items-center gap-x-12 gap-y-6 border-t border-border pt-6">
-          <Stat n={`${formatCount(stats.productCount)}+`} label="ranked products" />
+          <Stat
+            n={stats.productCount > 0 ? `${formatCount(stats.productCount)}+` : "0"}
+            label="ranked products"
+          />
           <Stat n={formatCount(stats.categoryCount)} label="community lists" />
           <Stat n={formatCount(stats.voteCount)} label="honest votes cast" />
           <Stat n="0" label="affiliate links" />
