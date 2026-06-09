@@ -87,7 +87,7 @@ export default function ProductDetailPage({
       <div className="grid gap-8 lg:grid-cols-2">
         <ImagePlaceholder
           label={product.imageLabel}
-          className="aspect-square w-full rounded-xl border border-border"
+          className="aspect-[4/3] w-full rounded-xl border border-border lg:aspect-square"
         />
 
         <div>
