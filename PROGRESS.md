@@ -1,6 +1,6 @@
 # Stier — Build Progress
 
-## Status: Phase 7 — Admin Panel (complete) · Browsing on Supabase (complete)
+## Status: Phase 7 — Admin Panel (complete) · Full Supabase browsing (complete)
 
 ---
 
@@ -19,7 +19,7 @@
 - [x] Auth actions `lib/auth.ts` (signUp, signIn, signOut, getSession, getUser)
 - [x] Login + signup pages (Stier design system, tier-bar accent)
 - [x] Phase 2 browsing: homepage, category list, ranked category, product detail
-- [x] Seed data module (`lib/seed-data.ts`) + ranking/tier logic (`lib/ranking.ts`)
+- [x] Seed data module — **removed** (`lib/seed-data.ts` deleted); ranking/tier logic remains in `lib/ranking.ts`
 - [x] `npm install`, typecheck, lint, and production build all passing (50 routes)
 
 ---
@@ -147,6 +147,17 @@ Migration: `supabase/migrations/20260610210000_profile_ban.sql` (applied).
 - [x] **Vote bundle fix** — `lib/db/vote-types.ts` keeps client components out of server-only Supabase imports
 - [x] **`generateStaticParams` removed** — category + product detail routes are `force-dynamic`; static param generation was calling Supabase via `cookies()` outside a request scope (500 on first compile)
 
+## Full Seed Migration (Jun 9)
+
+- [x] **Homepage hero stats** — `getSiteStatsFromDb()`: approved product count, active category count, total votes (`affiliateLinks` always 0)
+- [x] **Hero stack cards** — top 3 categories by vote activity with live ranked products + weekly vote counts
+- [x] **Rising this week** — `getRisingProductsFromDb()`: most votes in last 7 days from `votes.created_at`
+- [x] **`/for-you`** — popular categories + rising products from Supabase
+- [x] **`/trending`** — trending categories/products by vote activity (week vs month via `?period=month`)
+- [x] **`/new`** — newest categories and recently approved products by `created_at`
+- [x] **Nav parent grids** — real product counts, vote totals, and top ranked product per list
+- [x] **`lib/seed-data.ts` removed** — all runtime reads go through `lib/db/catalog.ts`; DB seed script (`scripts/seed-catalog.mjs`) remains for populating Supabase
+
 ---
 
 ## In Progress
@@ -156,9 +167,8 @@ Migration: `supabase/migrations/20260610210000_profile_ban.sql` (applied).
 
 ## Up Next
 1. Waitlist page + email capture (Phase 8)
-2. Wire remaining seed-data pages (hero stats, rising, trending, for-you) to Supabase
-3. Phase 9 — personalized For You feed
-4. Set up Vercel deployment
+2. Phase 9 — personalized For You feed
+3. Set up Vercel deployment
 
 ---
 
@@ -311,7 +321,7 @@ _Cursor should update this as files are created._
 | middleware.ts | Refreshes the Supabase session on every request |
 | lib/auth.ts | Server auth actions: signUp, signIn, signOut, getSession, getUser |
 | lib/ranking.ts | `calculateScore` + `assignTier` (from .cursorrules) + tier labels |
-| lib/seed-data.ts | Placeholder categories/products/reviews + ranking-aware accessors |
+| lib/db/catalog.ts | Supabase catalog + discovery queries (no seed fallback) |
 | types/index.ts | Shared types: Tier, Category, Product, RankedProduct, Review |
 | components/ui/input.tsx, label.tsx | Form primitives for auth |
 | components/auth/AuthCard.tsx, LoginForm.tsx, SignupForm.tsx | Auth UI |
@@ -370,10 +380,10 @@ Auth is done: `middleware.ts` refreshes sessions, `lib/auth.ts` exposes signUp/s
 getSession/getUser, and the login/signup pages are styled with the design system. The repo is
 connected to GitHub (TimVanC/stier) and `main` is up to date.
 
-Phase 2 (Core Browsing) is complete. Category list, ranked lists, product detail, and
-homepage featured categories read from Supabase via `lib/db/catalog.ts` (seed fallback
-when DB is empty). Homepage hero stats, rising section, hero stack cards, nav parent
-grids, and `/for-you` / `/trending` / `/new` still use seed data.
+Phase 2 (Core Browsing) reads entirely from Supabase via `lib/db/catalog.ts`.
+Homepage, discovery pages (`/for-you`, `/trending`, `/new`), nav parent grids, category
+list, ranked lists, and product detail all query the database. Empty states when no rows.
+`lib/seed-data.ts` has been deleted.
 
 Phase 3 (Voting) is complete: VoteButtons call Supabase server actions with optimistic UI,
 sign-up modal for anonymous users, category-level realtime on ranked lists, and live
@@ -395,12 +405,5 @@ account deletion requires `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`.
 Phase 7 (Admin Panel) is complete: `/admin` dashboard with live stats; submission
 queue with approve/reject; category CRUD; flagged review moderation; user search with
 ban and clear-votes actions. Ban enforcement blocks votes, reviews, and submissions.
-
-Browsing reads from Supabase: category list, ranked lists, product detail, and homepage
-featured categories. Seed data is fallback only when the DB returns empty. Category and
-product routes are `force-dynamic` (no `generateStaticParams`).
-
-**Still on seed data:** hero stats (`getSiteStats`), hero stack cards, rising this week,
-`/for-you`, `/trending`, `/new`, nav parent grid previews (`ParentCategoryGrid`).
 
 Phase 8 next: waitlist page. Use `npm run dev` to view.
