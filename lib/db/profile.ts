@@ -1,20 +1,8 @@
 import { createClient } from "@/lib/supabase-server";
+import type { PublicProfile, ProfileStats } from "@/lib/db/profile-shared";
 
-export interface PublicProfile {
-  id: string;
-  userId: string;
-  username: string;
-  displayName: string;
-  avatarUrl: string | null;
-  isPrivate: boolean;
-  createdAt: string;
-}
-
-export interface ProfileStats {
-  reviewCount: number;
-  submissionCount: number;
-  voteCount: number;
-}
+export { avatarPublicUrl } from "@/lib/db/profile-shared";
+export type { PublicProfile, ProfileStats } from "@/lib/db/profile-shared";
 
 function mapProfile(row: {
   id: string;
@@ -90,12 +78,4 @@ export async function getProfileStats(
     submissionCount: submissions.count ?? 0,
     voteCount: votes.count ?? 0,
   };
-}
-
-export function avatarPublicUrl(path: string | null): string | null {
-  if (!path) return null;
-  if (path.startsWith("http")) return path;
-  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!base) return null;
-  return `${base}/storage/v1/object/public/avatars/${path}`;
 }
