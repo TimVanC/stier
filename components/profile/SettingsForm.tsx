@@ -13,8 +13,8 @@ import { signOut } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { avatarPublicUrl } from "@/lib/db/profile";
-import type { PublicProfile } from "@/lib/db/profile";
+import { avatarPublicUrl } from "@/lib/db/profile-shared";
+import type { PublicProfile } from "@/lib/db/profile-shared";
 
 export function SettingsForm({
   profile,
