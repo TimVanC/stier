@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
-import { validateUsername, sanitizeText, isUuid } from "@/lib/sanitize";
+import { validateUsername, sanitizeText } from "@/lib/sanitize";
 import type { ActionResult } from "@/lib/actions/types";
 
 const AVATAR_BUCKET = "avatars";
