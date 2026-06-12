@@ -27,7 +27,6 @@ const ProductVoteContext = createContext<ProductVoteContextValue | null>(null);
 
 export function ProductVoteProvider({
   initialProduct,
-  categorySlug,
   seedProducts,
   children,
 }: {
